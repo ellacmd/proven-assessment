@@ -1,0 +1,99 @@
+<section class="profile-container">
+  <div class="profile-background"></div>
+
+  <div class="profile-content">
+    <div class="profile-summary">
+      <div class="profile-picture">
+        @if (hasProfileImage) {
+        <img src="/avatar.png" [alt]="profileData.name + ' Profile Picture'" />
+        } @else {
+        <div class="profile-initials">
+          {{ initials }}
+        </div>
+        }
+      </div>
+      <h2 class="profile-name">{{ profileData.name }}</h2>
+      <button class="edit-profile-btn" (click)="onEditProfile()">
+        <img src="/edit.svg" alt="Edit" class="icon" />
+        Edit Profile
+      </button>
+    </div>
+
+    <div class="profile-info">
+      <div class="profile-picture profile-picture-mobile">
+        @if (hasProfileImage) {
+        <img src="/avatar.png" [alt]="profileData.name + ' Profile Picture'" />
+        } @else {
+        <div class="profile-initials">
+          {{ initials }}
+        </div>
+        }
+      </div>
+      <h2 class="profile-name profile-name-mobile">{{ profileData.name }}</h2>
+      <h3 class="profile-info-header">Profile Info</h3>
+      <div class="profile-info-content">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-icon">
+              <img src="/user.svg" alt="User" class="icon" />
+            </div>
+            <div class="info-details">
+              <span class="info-label">Username</span>
+              <span class="info-value">{{ profileData.username }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <img src="/phone.svg" alt="Phone" class="icon" />
+            </div>
+            <div class="info-details">
+              <span class="info-label">Phone</span>
+              <span class="info-value">{{ profileData.phone }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <img src="/location.svg" alt="Location" class="icon" />
+            </div>
+            <div class="info-details">
+              <span class="info-label">Country</span>
+              <span class="info-value">{{ profileData.country }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <img src="/email.svg" alt="Email" class="icon" />
+            </div>
+            <div class="info-details">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ profileData.email }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <img src="/calendar.svg" alt="Calendar" class="icon" />
+            </div>
+            <div class="info-details">
+              <span class="info-label">Birthdate</span>
+              <span class="info-value">{{ profileData.birthdate }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <img src="/globe.svg" alt="Website" class="icon" />
+            </div>
+            <div class="info-details">
+              <span class="info-label">Website</span>
+              <span class="info-value">{{ profileData.website }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

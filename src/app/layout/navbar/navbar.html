@@ -4,10 +4,36 @@
   <ul class="desktop-nav">
     <li>About Us</li>
     <li>Pricing</li>
+
+    @if (!isSignedIn) {
     <li>
-      <button>Sign In</button>
+      <button class="nav-button">Sign In</button>
     </li>
-    <li><button>Registration</button></li>
+    <li><button class="nav-button">Registration</button></li>
+    } @else {
+    <li class="user-profile">
+      <button [matMenuTriggerFor]="userMenu" class="user-menu-trigger">
+        <img [src]="currentUser.avatar" [alt]="currentUser.name" class="user-avatar" />
+        <span class="user-name">{{ currentUser.name }}</span>
+        <img src="/arrow-down.svg" alt="dropdown" class="dropdown-icon" />
+      </button>
+      <mat-menu #userMenu="matMenu" class="user-dropdown">
+        <button mat-menu-item (click)="onProfileClick()">
+          <mat-icon fontIcon="person"></mat-icon>
+          <span>Profile</span>
+        </button>
+        <button mat-menu-item (click)="onEditProfileClick()">
+          <mat-icon fontIcon="edit"></mat-icon>
+          <span>Edit Profile</span>
+        </button>
+        <button mat-menu-item (click)="onLogoutClick()">
+          <mat-icon fontIcon="logout"></mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    </li>
+    }
+
     <li>
       <mat-icon aria-hidden="false" aria-label="Search icon" fontIcon="search"></mat-icon>
     </li>
@@ -18,20 +44,44 @@
   </button>
 </nav>
 
-
 <div class="drawer-backdrop" [class.active]="drawerOpened" (click)="toggleDrawer()"></div>
 <div class="mobile-drawer" [class.open]="drawerOpened">
-
   <mat-nav-list class="mobile-nav-list">
     <a mat-list-item (click)="toggleDrawer()">About Us</a>
     <a mat-list-item (click)="toggleDrawer()">Pricing</a>
+
+    @if (!isSignedIn) {
     <a mat-list-item (click)="toggleDrawer()">
-      <button class="mobile-signin-btn">Sign In</button>
+      <button class="nav-button mobile-signin-btn">Sign In</button>
     </a>
-    <a mat-list-item (click)="toggleDrawer()">
-      <button class="mobile-registration-btn">Registration</button>
+    <a  (click)="toggleDrawer()">
+      <button class="nav-button mobile-registration-btn">Registration</button>
     </a>
-    <div mat-list-item (click)="toggleDrawer()" class="search-item">
+    } @else {
+    <div class="mobile-user-profile">
+      <div class="mobile-user-info">
+        <img [src]="currentUser.avatar" [alt]="currentUser.name" class="mobile-user-avatar" />
+        <div class="mobile-user-details">
+          <span class="mobile-user-name">{{ currentUser.name }}</span>
+          <span class="mobile-user-email">{{ currentUser.email }}</span>
+        </div>
+      </div>
+    </div>
+    <a class="search-item" (click)="onProfileClick(); toggleDrawer()">
+      <mat-icon fontIcon="person"></mat-icon>
+      <span>Profile</span>
+    </a>
+    <a class="search-item" (click)="onEditProfileClick(); toggleDrawer()">
+      <mat-icon fontIcon="edit"></mat-icon>
+      <span>Edit Profile</span>
+    </a>
+    <a class="search-item" (click)="onLogoutClick(); toggleDrawer()">
+      <mat-icon fontIcon="logout"></mat-icon>
+      <span>Logout</span>
+    </a>
+    }
+
+    <div (click)="toggleDrawer()" class="search-item">
       <mat-icon aria-hidden="false" aria-label="Search icon" fontIcon="search"></mat-icon>
       <span>Search</span>
     </div>

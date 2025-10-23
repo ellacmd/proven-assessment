@@ -90,7 +90,7 @@ mat-icon:active {
 }
 
 
-ul button {
+ul .nav-button {
     background-color: #545454;
     color: white;
     padding: 10px 20px;
@@ -102,7 +102,7 @@ ul button {
     overflow: hidden;
 }
 
-ul button::before {
+ul .nav-button::before {
     content: '';
     position: absolute;
     top: 0;
@@ -113,16 +113,16 @@ ul button::before {
     transition: left 0.5s;
 }
 
-ul button:hover {
+ul .nav-button:hover {
     background-color: #333;
     box-shadow: 0 4px 12px rgba(84, 84, 84, 0.3);
 }
 
-ul button:hover::before {
+ul .nav-button:hover::before {
     left: 100%;
 }
 
-ul button:active {
+ul .nav-button:active {
     transform: translateY(0);
     box-shadow: 0 2px 6px rgba(84, 84, 84, 0.2);
 }
@@ -242,20 +242,147 @@ ul button:active {
 
 .mobile-signin-btn,
 .mobile-registration-btn {
-    background-color: #545454;
-    color: white;
     padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
     margin-left: auto;
 }
 
 .mobile-signin-btn:hover,
 .mobile-registration-btn:hover {
     background-color: #333;
+}
+
+
+.user-profile {
+    margin-right: 0 !important;
+}
+
+.user-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #545454;
+    font-weight: 600;
+}
+
+.user-menu-trigger:hover {
+    background-color: #f0f0f0;
+}
+
+.user-avatar {
+    width:40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #545454;
+}
+
+.user-dropdown {
+    margin-top: 8px;
+}
+
+.user-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.user-dropdown button:hover {
+    background-color: #f5f5f5;
+}
+
+.user-dropdown mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+}
+
+.dropdown-icon {
+    width: 10px;
+    height: 5px;
+    transition: transform 0.2s ease;
+}
+
+
+
+
+.mobile-user-profile {
+    padding: 16px 20px !important;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 8px;
+}
+
+.mobile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+}
+
+.mobile-user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mobile-user-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.mobile-user-email {
+    font-size: 14px;
+    color: #666;
+}
+
+.mobile-nav-list a[mat-list-item] {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: #545454;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-list a[mat-list-item]:hover {
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+.mobile-nav-list a[mat-list-item] mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -266,11 +393,12 @@ ul button:active {
     .desktop-nav {
         display: none;
     }
+
     .hamburger-btn {
         display: block;
     }
 
-    ul button {
+    ul .nav-button {
         padding: 8px 16px;
         font-size: 14px;
     }
