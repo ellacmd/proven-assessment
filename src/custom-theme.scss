@@ -35,7 +35,6 @@ body {
   margin: 0;
 }
 
-
 .custom-stepper {
   .mat-stepper-horizontal-line {
     border-top-color: var(--mat-sys-outline-variant);
@@ -67,4 +66,14 @@ body {
       font-weight: 600;
     }
   }
+}
+
+.mat-mdc-form-field-error {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.mat-mdc-form-field-error-wrapper {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }

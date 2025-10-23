@@ -173,11 +173,16 @@ export class SignUp implements OnInit {
   getFieldError(fieldName: string): string {
     const field = this.registrationForm.get(fieldName);
     if (field?.errors && field.touched) {
-      if (field.errors['required']) return `${fieldName} is required`;
+      if (field.errors['required']) return `${this.capitalizeFirstLetter(fieldName)} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
-      if (field.errors['minlength']) return `${fieldName} must be at least 3 characters`;
+      if (field.errors['minlength'])
+        return `${this.capitalizeFirstLetter(fieldName)} must be at least 3 characters`;
     }
     return '';
+  }
+
+  private capitalizeFirstLetter(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
   onDigitInput(event: any, currentIndex: number): void {
@@ -260,6 +265,4 @@ export class SignUp implements OnInit {
 
     return '';
   }
-
-
 }
