@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { EditProfileModal } from './edit-profile-modal/edit-profile-modal';
 
 interface ProfileData {
   name: string;
@@ -15,10 +17,11 @@ interface ProfileData {
 @Component({
   selector: 'app-profile-page',
   imports: [CommonModule],
-  templateUrl: './profile-page.html',
-  styleUrl: './profile-page.css',
+  templateUrl: './profile.html',
+  styleUrl: './profile.css',
 })
 export class ProfilePage {
+  constructor(private dialog: MatDialog) {}
   profileData: ProfileData = {
     name: 'Robert Downey Jr',
     username: 'Robert Downey Jr',
@@ -43,6 +46,20 @@ export class ProfilePage {
   }
 
   onEditProfile(): void {
-    console.log('Edit profile clicked');
+    const dialogRef = this.dialog.open(EditProfileModal, {
+      width: '600px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: this.profileData,
+      disableClose: false,
+      autoFocus: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.profileData = { ...result };
+        console.log('Profile updated:', this.profileData);
+      }
+    });
   }
 }

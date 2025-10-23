@@ -11,6 +11,7 @@
     width: 100%;
     min-height: 300px;
     position: relative;
+    padding: 12px 16px;
 }
 
 .profile-content {
@@ -172,7 +173,8 @@
 }
 
 .profile-picture-mobile,
-.profile-name-mobile {
+.profile-name-mobile,
+.edit-profile-btn-mobile {
     display: none;
 }
 
@@ -216,6 +218,19 @@
 
     .profile-summary {
         display: none;
+    }
+
+    .edit-profile-btn-mobile {
+        margin-left: auto;
+        display: block;
+        margin-top: 12px;
+        background: #1A78A7;
+        color: white;
+        border: 1px solid white;
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        gap: 0.5em;
     }
 
     .info-grid {

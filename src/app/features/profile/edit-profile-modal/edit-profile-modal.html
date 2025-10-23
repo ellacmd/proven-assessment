@@ -1,0 +1,118 @@
+<div class="edit-profile-modal">
+  <h2 mat-dialog-title>Edit Profile</h2>
+
+  <mat-dialog-content class="modal-content">
+    <form [formGroup]="editForm" class="edit-form">
+      <div class="avatar-section">
+        <h3>Profile Picture</h3>
+        <div class="avatar-container">
+          <div class="avatar-preview" [class.has-image]="hasImage()">
+            @if (hasImage()) {
+            <img [src]="previewUrl" alt="Profile preview" />
+            <button
+              type="button"
+              class="delete-image-btn"
+              (click)="onDeleteImage()"
+              mat-icon-button
+              aria-label="Delete profile image"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+            } @else {
+            <div class="avatar-placeholder">
+              <mat-icon>person</mat-icon>
+            </div>
+            }
+          </div>
+          <input
+            type="file"
+            id="avatar-upload"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            style="display: none"
+          />
+          <label for="avatar-upload" class="upload-button">
+            <mat-icon>cloud_upload</mat-icon>
+            Upload Profile Picture
+          </label>
+          <div class="upload-instructions">
+            <p>Upload a new avatar. Large image will be resized automatically.</p>
+            <p>Maximum upload size is <strong>1 MB</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" placeholder="Enter your username" />
+          @if (getFieldError('username')) {
+          <mat-error>{{ getFieldError('username') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width readonly-field">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" readonly />
+          <mat-icon matSuffix class="readonly-icon">lock</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width readonly-field">
+          <mat-label>Phone</mat-label>
+          <span matPrefix class="phone-prefix">🇺🇸 </span>
+          <input matInput type="tel" formControlName="phone" readonly />
+          <mat-icon matSuffix class="readonly-icon">lock</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Birth Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="birthdate"
+            placeholder="MM/DD/YYYY"
+          />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          @if (getFieldError('birthdate')) {
+          <mat-error>{{ getFieldError('birthdate') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Country</mat-label>
+          <input
+            matInput
+            formControlName="country"
+            [matAutocomplete]="countryAuto"
+            placeholder="Select your country"
+          />
+          <mat-autocomplete #countryAuto="matAutocomplete">
+            @for (country of filteredCountries; track country) {
+            <mat-option [value]="country">{{ country }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (getFieldError('country')) {
+          <mat-error>{{ getFieldError('country') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Website</mat-label>
+          <input matInput type="url" formControlName="website" placeholder="www.websitename.com" />
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="modal-actions">
+    <button mat-stroked-button (click)="onCancel()">
+      <mat-icon>close</mat-icon>
+      Cancel
+    </button>
+    <button mat-raised-button color="primary" (click)="onSave()">
+      <mat-icon>save</mat-icon>
+      Save Changes
+    </button>
+  </mat-dialog-actions>
+</div>

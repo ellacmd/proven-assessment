@@ -1,18 +1,23 @@
 <section class="profile-container">
-  <div class="profile-background"></div>
+  <div class="profile-background">
+    <button class=" edit-profile-btn-mobile" (click)="onEditProfile()">
+      <img src="/edit-white.svg" alt="Edit" class="icon" />
+      Edit Profile
+    </button>
+  </div>
 
   <div class="profile-content">
     <div class="profile-summary">
       <div class="profile-picture">
         @if (hasProfileImage) {
-        <img src="/avatar.png" [alt]="profileData.name + ' Profile Picture'" />
+        <img src="/avatar.png" [alt]="profileData.username + ' Profile Picture'" />
         } @else {
         <div class="profile-initials">
           {{ initials }}
         </div>
         }
       </div>
-      <h2 class="profile-name">{{ profileData.name }}</h2>
+      <h2 class="profile-name">{{ profileData.username }}</h2>
       <button class="edit-profile-btn" (click)="onEditProfile()">
         <img src="/edit.svg" alt="Edit" class="icon" />
         Edit Profile
@@ -22,14 +27,14 @@
     <div class="profile-info">
       <div class="profile-picture profile-picture-mobile">
         @if (hasProfileImage) {
-        <img src="/avatar.png" [alt]="profileData.name + ' Profile Picture'" />
+        <img src="/avatar.png" [alt]="profileData.username + ' Profile Picture'" />
         } @else {
         <div class="profile-initials">
           {{ initials }}
         </div>
         }
       </div>
-      <h2 class="profile-name profile-name-mobile">{{ profileData.name }}</h2>
+      <h2 class="profile-name profile-name-mobile">{{ profileData.username }}</h2>
       <h3 class="profile-info-header">Profile Info</h3>
       <div class="profile-info-content">
         <div class="info-grid">

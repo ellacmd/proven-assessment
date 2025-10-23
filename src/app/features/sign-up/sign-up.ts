@@ -21,7 +21,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { countries } from '../../../core/utils/constants';
+import { countries } from '../../core/utils/constants';
 
 @Component({
   selector: 'app-sign-up',
