@@ -1,2 +1,201 @@
+<div class="signup-container">
+  <mat-stepper #stepper class="custom-stepper">
+    <mat-step [stepControl]="registrationForm" label="Registration">
+      <div class="form-container">
+        <div class="avatar-section">
+          <h3>Profile picture</h3>
+          <div class="avatar-container">
+            <div class="avatar-preview" [class.has-image]="previewUrl">
+              @if (previewUrl) {
+              <img [src]="previewUrl" alt="Profile preview" />
+              } @if (!previewUrl) {
+              <div class="avatar-placeholder">
+                <mat-icon>person</mat-icon>
+              </div>
+              }
+            </div>
+            <input
+              type="file"
+              id="avatar-upload"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              style="display: none"
+            />
+            <label for="avatar-upload" class="upload-button">
+              <mat-icon>cloud_upload</mat-icon>
+              Upload Profile Picture
+            </label>
+            <div class="upload-instructions">
+              <p>Upload a new avatar. Large image will be resized automatically.</p>
+              <p>Maximum upload size is <strong>1 MB</strong></p>
+            </div>
+          </div>
+        </div>
 
-<p>sign-up works!</p>
+        <div class="form-section">
+          <form [formGroup]="registrationForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Username </mat-label>
+              <input matInput formControlName="username" placeholder="JohnDoe" />
+              @if (getFieldError('username')) {
+              <mat-error>
+                {{ getFieldError('username') }}
+              </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email </mat-label>
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="johndoe@gmail.com"
+              />
+              @if (getFieldError('email')) {
+              <mat-error>
+                {{ getFieldError('email') }}
+              </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Phone</mat-label>
+              <span matPrefix class="phone-prefix">🇺🇸 +1</span>
+              <input matInput type="tel" formControlName="phone" placeholder="000-000-000" />
+              @if (getFieldError('phone')) {
+              <mat-error>
+                {{ getFieldError('phone') }}
+              </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Birth Date </mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                formControlName="birthDate"
+                placeholder="MM/DD/YYYY"
+              />
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              @if (getFieldError('birthDate')) {
+              <mat-error>
+                {{ getFieldError('birthDate') }}
+              </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Country </mat-label>
+              <input
+                matInput
+                formControlName="country"
+                [matAutocomplete]="countryAuto"
+                placeholder="Select your country"
+              />
+              <mat-autocomplete #countryAuto="matAutocomplete">
+                @for (country of filteredCountries; track country) {
+                <mat-option [value]="country">
+                  {{ country }}
+                </mat-option>
+                }
+              </mat-autocomplete>
+              @if (getFieldError('country')) {
+              <mat-error>
+                {{ getFieldError('country') }}
+              </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Website</mat-label>
+              <input
+                matInput
+                type="url"
+                formControlName="website"
+                placeholder="www.websitename.com"
+              />
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button mat-raised-button color="primary" (click)="onSave(stepper)">
+                Next
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step [stepControl]="verificationForm" label="Verification">
+      <div class="verification-container">
+        <div class="verification-content">
+          <h2>Verify Your Account</h2>
+          <p class="verification-description">
+            We've sent a 6-digit verification code to your email address. Please enter the code
+            below to complete your registration.
+          </p>
+
+          <form [formGroup]="verificationForm">
+            <div class="verification-code-container">
+              <label class="verification-label">Verification Code</label>
+              <div class="digit-inputs">
+                @for (i of [0, 1, 2, 3, 4, 5]; track i; let idx = $index) {
+                <input
+                  #digitInput
+                  maxlength="1"
+                  class="digit-input"
+                  type="text"
+                  inputmode="numeric"
+                  [formControlName]="'digit' + (idx + 1)"
+                  (input)="onDigitInput($event, idx + 1)"
+                  (keydown)="onDigitKeydown($event, idx + 1)"
+                  (paste)="onPaste($event)"
+                  placeholder="0"
+                />
+                }
+              </div>
+              @if (getVerificationError()) {
+              <div class="verification-error">
+                {{ getVerificationError() }}
+              </div>
+              }
+            </div>
+
+            <div class="timer-section">
+              <div class="timer" [class.expired]="timer() <= 0">
+                <mat-icon>timer</mat-icon>
+                You can request a new OTP in: {{ formatTime(timer()) }}
+              </div>
+              <div class="resend-section">
+                <p class="resend-text">Didn't receive the code?</p>
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="onResendCode()"
+                  [disabled]="isResendDisabled()"
+                >
+                  Resend OTP
+                </button>
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button mat-stroked-button color="primary" (click)="onBack(stepper)">
+                <mat-icon>arrow_back</mat-icon>
+                Back
+              </button>
+              <button mat-raised-button color="primary" (click)="onVerify()">
+                <mat-icon>check</mat-icon>
+                Verify Account
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</div>
