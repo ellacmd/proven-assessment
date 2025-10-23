@@ -1,0 +1,266 @@
+.profile-container {
+    min-height: 100vh;
+    position: relative;
+    background-color: #f5f5f5;
+}
+
+.profile-background {
+    background-image: url('/profile-background.svg');
+    background-position: center;
+    background-size: cover;
+    width: 100%;
+    min-height: 300px;
+    position: relative;
+}
+
+.profile-content {
+    display: flex;
+    gap: 2rem;
+    margin: -150px auto 0;
+    padding: 0 100px;
+    position: relative;
+    z-index: 1;
+}
+
+
+.profile-summary {
+    background: white;
+    padding: 28px 42px 35px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    width: 334px;
+    text-align: center;
+    height: fit-content;
+    display: block;
+}
+
+.profile-picture {
+    margin-bottom: 1.5rem;
+}
+
+.profile-picture img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #FFFFFF;
+}
+
+.profile-initials {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #3785BC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: white;
+    border: 4px solid #f8f9fa;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-name {
+    font-size: 30px;
+    font-weight: 600;
+    color: #545454;
+    margin-bottom: 14px;
+    line-height: 1.2;
+}
+
+.edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ECECEC;
+    padding: 10px 12px;
+    color: #545454;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-weight: 300;
+    transition: all 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.edit-profile-btn .icon {
+    width: 16px;
+    height: 16px;
+}
+
+
+.profile-info {
+    background: white;
+    padding: 20px 30px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    flex: 1;
+
+}
+
+.profile-info-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #545454;
+    margin-bottom: 40px;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.profile-info-content {
+    margin-top: 1rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 45px;
+}
+
+.info-item:nth-child(1) {
+    order: 1;
+}
+
+.info-item:nth-child(2) {
+    order: 3;
+}
+
+.info-item:nth-child(3) {
+    order: 5;
+}
+
+.info-item:nth-child(4) {
+    order: 2;
+}
+
+.info-item:nth-child(5) {
+    order: 4;
+}
+
+.info-item:nth-child(6) {
+    order: 6;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+
+
+.info-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.info-label {
+    font-size: 16px;
+    color: #7A7A7A;
+    font-weight: 400;
+}
+
+.info-value {
+    font-size: 18px;
+    color: #545454;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.profile-picture-mobile,
+.profile-name-mobile {
+    display: none;
+}
+
+@media (max-width: 1156px) {
+    .profile-content {
+        padding: 40px;
+    }
+}
+
+@media (max-width: 1038px) {
+    .profile-background {
+        height: 411px;
+    }
+
+    .profile-content {
+        flex-direction: column;
+        margin-top: -122px;
+        padding: 0 1rem 2rem;
+    }
+
+    .profile-info {
+        padding-top: 120px;
+        position: relative;
+
+    }
+
+    .profile-name-mobile {
+        text-align: center;
+        display: block;
+        margin-bottom: 35px;
+    }
+
+    .profile-picture-mobile {
+        margin-bottom: 22px;
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: block;
+    }
+
+    .profile-summary {
+        display: none;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+
+    .info-item:nth-child(1) {
+        order: 1;
+    }
+
+
+    .info-item:nth-child(2) {
+        order: 3;
+    }
+
+    .info-item:nth-child(3) {
+        order: 6;
+    }
+
+
+    .info-item:nth-child(4) {
+        order: 2;
+    }
+
+
+    .info-item:nth-child(5) {
+        order: 5;
+    }
+
+
+    .info-item:nth-child(6) {
+        order: 4;
+    }
+
+    .profile-background {
+        height: 200px;
+    }
+
+    @media (max-width: 500px) {
+        .profile-info {
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+    }
+}
