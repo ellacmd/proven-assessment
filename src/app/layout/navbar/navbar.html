@@ -1,0 +1,39 @@
+<nav>
+  <img src="/logo.svg" alt="" />
+
+  <ul class="desktop-nav">
+    <li>About Us</li>
+    <li>Pricing</li>
+    <li>
+      <button>Sign In</button>
+    </li>
+    <li><button>Registration</button></li>
+    <li>
+      <mat-icon aria-hidden="false" aria-label="Search icon" fontIcon="search"></mat-icon>
+    </li>
+  </ul>
+
+  <button class="hamburger-btn" (click)="toggleDrawer()" aria-label="Toggle navigation menu">
+    <mat-icon fontIcon="menu"></mat-icon>
+  </button>
+</nav>
+
+
+<div class="drawer-backdrop" [class.active]="drawerOpened" (click)="toggleDrawer()"></div>
+<div class="mobile-drawer" [class.open]="drawerOpened">
+
+  <mat-nav-list class="mobile-nav-list">
+    <a mat-list-item (click)="toggleDrawer()">About Us</a>
+    <a mat-list-item (click)="toggleDrawer()">Pricing</a>
+    <a mat-list-item (click)="toggleDrawer()">
+      <button class="mobile-signin-btn">Sign In</button>
+    </a>
+    <a mat-list-item (click)="toggleDrawer()">
+      <button class="mobile-registration-btn">Registration</button>
+    </a>
+    <div mat-list-item (click)="toggleDrawer()" class="search-item">
+      <mat-icon aria-hidden="false" aria-label="Search icon" fontIcon="search"></mat-icon>
+      <span>Search</span>
+    </div>
+  </mat-nav-list>
+</div>
