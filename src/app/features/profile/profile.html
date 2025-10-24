@@ -1,6 +1,17 @@
 <section class="profile-container">
+  @if (isLoading()) {
+  <div class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading profile...</p>
+  </div>
+  } @else if (errorMessage()) {
+  <div class="error-container">
+    <p>{{ errorMessage() }}</p>
+    <button mat-button color="primary" (click)="loadUserProfile()">Retry</button>
+  </div>
+  } @else {
   <div class="profile-background">
-    <button class=" edit-profile-btn-mobile" (click)="onEditProfile()">
+    <button class="edit-profile-btn-mobile" (click)="onEditProfile()">
       <img src="/edit-white.svg" alt="Edit" class="icon" />
       Edit Profile
     </button>
@@ -10,14 +21,17 @@
     <div class="profile-summary">
       <div class="profile-picture">
         @if (hasProfileImage) {
-        <img src="/avatar.png" [alt]="profileData.username + ' Profile Picture'" />
+        <img
+          [src]="profileData()?.avatar_url"
+          [alt]="profileData()?.username + ' Profile Picture'"
+        />
         } @else {
         <div class="profile-initials">
           {{ initials }}
         </div>
         }
       </div>
-      <h2 class="profile-name">{{ profileData.username }}</h2>
+      <h2 class="profile-name">{{ profileData()?.username }}</h2>
       <button class="edit-profile-btn" (click)="onEditProfile()">
         <img src="/edit.svg" alt="Edit" class="icon" />
         Edit Profile
@@ -27,14 +41,17 @@
     <div class="profile-info">
       <div class="profile-picture profile-picture-mobile">
         @if (hasProfileImage) {
-        <img src="/avatar.png" [alt]="profileData.username + ' Profile Picture'" />
+        <img
+          [src]="profileData()?.avatar_url"
+          [alt]="profileData()?.username + ' Profile Picture'"
+        />
         } @else {
         <div class="profile-initials">
           {{ initials }}
         </div>
         }
       </div>
-      <h2 class="profile-name profile-name-mobile">{{ profileData.username }}</h2>
+      <h2 class="profile-name profile-name-mobile">{{ profileData()?.username }}</h2>
       <h3 class="profile-info-header">Profile Info</h3>
       <div class="profile-info-content">
         <div class="info-grid">
@@ -44,7 +61,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Username</span>
-              <span class="info-value">{{ profileData.username }}</span>
+              <span class="info-value">{{ profileData()?.username }}</span>
             </div>
           </div>
 
@@ -54,7 +71,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Phone</span>
-              <span class="info-value">{{ profileData.phone }}</span>
+              <span class="info-value">{{ profileData()?.phone }}</span>
             </div>
           </div>
 
@@ -64,7 +81,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Country</span>
-              <span class="info-value">{{ profileData.country }}</span>
+              <span class="info-value">{{ profileData()?.country }}</span>
             </div>
           </div>
 
@@ -74,7 +91,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Email</span>
-              <span class="info-value">{{ profileData.email }}</span>
+              <span class="info-value">{{ profileData()?.email }}</span>
             </div>
           </div>
 
@@ -84,7 +101,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Birthdate</span>
-              <span class="info-value">{{ profileData.birthdate }}</span>
+              <span class="info-value">{{ profileData()?.birth_date }}</span>
             </div>
           </div>
 
@@ -94,11 +111,12 @@
             </div>
             <div class="info-details">
               <span class="info-label">Website</span>
-              <span class="info-value">{{ profileData.website }}</span>
+              <span class="info-value">{{ profileData()?.website }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  }
 </section>

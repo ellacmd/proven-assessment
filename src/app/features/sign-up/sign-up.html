@@ -60,6 +60,21 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input
+                matInput
+                type="password"
+                formControlName="password"
+                placeholder="Enter your password"
+              />
+              @if (getFieldError('password')) {
+              <mat-error>
+                {{ getFieldError('password') }}
+              </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
               <mat-label>Phone</mat-label>
               <span matPrefix class="phone-prefix">🇺🇸 +1</span>
               <input matInput type="tel" formControlName="phone" placeholder="000-000-000" />
@@ -119,10 +134,22 @@
               />
             </mat-form-field>
 
+            @if (errorMessage()) {
+            <div class="error-message">
+              {{ errorMessage() }}
+            </div>
+            }
+
             <div class="step-actions">
-              <button mat-raised-button color="primary" (click)="onSave(stepper)">
-                Next
-                <mat-icon>arrow_forward</mat-icon>
+              <button class="next-btn" (click)="onSave(stepper)" [disabled]="isLoading()">
+                @if (isLoading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                <ng-container>
+                  Next
+                  <mat-icon>arrow_forward</mat-icon>
+                </ng-container>
+                }
               </button>
             </div>
           </form>
@@ -183,14 +210,26 @@
               </div>
             </div>
 
+            @if (errorMessage()) {
+            <div class="error-message">
+              {{ errorMessage() }}
+            </div>
+            }
+
             <div class="step-actions">
               <button mat-stroked-button color="primary" (click)="onBack(stepper)">
                 <mat-icon>arrow_back</mat-icon>
                 Back
               </button>
-              <button mat-raised-button color="primary" (click)="onVerify()">
-                <mat-icon>check</mat-icon>
-                Verify Account
+              <button class="next-btn" (click)="onVerify()" [disabled]="!verificationForm.valid || isLoading()">
+                @if (isLoading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                <ng-container>
+                  <mat-icon>check</mat-icon>
+                  Verify Account
+                </ng-container>
+                }
               </button>
             </div>
           </form>

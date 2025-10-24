@@ -1,12 +1,12 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
   ViewChildren,
   QueryList,
   ElementRef,
   signal,
   computed,
+  inject,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -21,7 +21,10 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { countries } from '../../core/utils/constants';
+import { AuthService } from '../../core/services/auth.service';
+import { SignUpData } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-sign-up',
@@ -46,6 +49,10 @@ import { countries } from '../../core/utils/constants';
 export class SignUp implements OnInit {
   @ViewChildren('digitInput') digitInputs!: QueryList<ElementRef>;
 
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   registrationForm!: FormGroup;
   verificationForm!: FormGroup;
   selectedFile: File | null = null;
@@ -53,8 +60,9 @@ export class SignUp implements OnInit {
   timer = signal(0);
   isResendDisabled = computed(() => this.timer() > 0);
   filteredCountries: string[] = [];
-
-  constructor(private fb: FormBuilder) {}
+  isLoading = signal(false);
+  errorMessage = signal('');
+  currentStep = signal(0);
 
   ngOnInit() {
     this.initializeForms();
@@ -62,14 +70,18 @@ export class SignUp implements OnInit {
   }
 
   initializeForms() {
-    this.registrationForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      birthDate: ['', Validators.required],
-      country: ['', Validators.required],
-      phone: ['', Validators.required],
-      website: [''],
-    });
+    this.registrationForm = this.fb.group(
+      {
+        username: ['', [Validators.required, Validators.minLength(3)]],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        birthDate: ['', Validators.required],
+        country: ['', Validators.required],
+        phone: ['', Validators.required],
+        website: [''],
+      },
+      { validators: this.passwordMatchValidator }
+    );
 
     this.verificationForm = this.fb.group({
       digit1: ['', [Validators.required, Validators.pattern(/^\d$/)]],
@@ -79,6 +91,19 @@ export class SignUp implements OnInit {
       digit5: ['', [Validators.required, Validators.pattern(/^\d$/)]],
       digit6: ['', [Validators.required, Validators.pattern(/^\d$/)]],
     });
+  }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password');
+    const confirmPassword = form.get('confirmPassword');
+
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ passwordMismatch: true });
+    } else {
+      confirmPassword?.setErrors(null);
+    }
+
+    return null;
   }
 
   setupCountryFiltering() {
@@ -111,11 +136,46 @@ export class SignUp implements OnInit {
     }
   }
 
-  onSave(stepper: any) {
+  async onSave(stepper: any) {
+    Object.keys(this.registrationForm.controls).forEach((key) => {
+      const control = this.registrationForm.get(key);
+      if (control?.errors) {
+        console.log(`${key} errors:`, control.errors);
+      }
+    });
+
     if (this.registrationForm.valid) {
-      stepper.next();
-      this.startTimer(120);
-      this.sendVerificationCode();
+      this.isLoading.set(true);
+      this.errorMessage.set('');
+
+      try {
+        const formData = this.registrationForm.value;
+        const signUpData: SignUpData = {
+          email: formData.email,
+          password: formData.password,
+          username: formData.username,
+          phone: formData.phone,
+          birth_date: formData.birthDate,
+          country: formData.country,
+          website: formData.website,
+          avatar: this.selectedFile || undefined,
+        };
+
+        const result = await this.authService.signUp(signUpData);
+
+        if (result.success) {
+          stepper.next();
+          this.currentStep.set(1);
+          this.startTimer(120);
+          this.sendVerificationCode();
+        } else {
+          this.errorMessage.set(result.error || 'Registration failed');
+        }
+      } catch (error) {
+        this.errorMessage.set('An unexpected error occurred');
+      } finally {
+        this.isLoading.set(false);
+      }
     } else {
       this.markFormGroupTouched(this.registrationForm);
     }
@@ -125,18 +185,59 @@ export class SignUp implements OnInit {
     stepper.previous();
   }
 
-  onVerify() {
+  async onVerify() {
     if (this.verificationForm.valid) {
-      alert('Account verified successfully!');
+      this.isLoading.set(true);
+      this.errorMessage.set('');
+
+      try {
+        const code = Object.values(this.verificationForm.value).join('');
+        const email = this.registrationForm.get('email')?.value;
+        const password = this.registrationForm.get('password')?.value;
+
+        if (email && password) {
+          console.log('Mock verification successful for code:', code);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          const signInResult = await this.authService.signIn(email, password);
+
+          if (signInResult.success) {
+            this.router.navigate(['/profile']);
+          } else {
+            this.errorMessage.set(signInResult.error || 'Authentication failed');
+          }
+        }
+      } catch (error) {
+        this.errorMessage.set('An unexpected error occurred');
+      } finally {
+        this.isLoading.set(false);
+      }
     } else {
       this.markFormGroupTouched(this.verificationForm);
     }
   }
 
-  onResendCode() {
-    this.startTimer(120);
-    this.sendVerificationCode();
-    alert('New verification code sent!');
+  async onResendCode() {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      const email = this.registrationForm.get('email')?.value;
+      if (email) {
+        const result = await this.authService.sendVerificationCode(email);
+
+        if (result.success) {
+          this.startTimer(120);
+          this.sendVerificationCode();
+        } else {
+          this.errorMessage.set(result.error || 'Failed to send verification code');
+        }
+      }
+    } catch (error) {
+      this.errorMessage.set('An unexpected error occurred');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   startTimer(seconds: number) {
@@ -153,8 +254,11 @@ export class SignUp implements OnInit {
     }, 1000);
   }
 
-  sendVerificationCode() {
-    console.log('Verification code sent to:', this.registrationForm.get('email')?.value);
+  async sendVerificationCode() {
+    const email = this.registrationForm.get('email')?.value;
+    if (email) {
+      await this.authService.sendVerificationCode(email);
+    }
   }
 
   formatTime(seconds: number): string {

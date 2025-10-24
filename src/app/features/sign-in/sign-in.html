@@ -1,0 +1,68 @@
+<div class="signin-container">
+  <div class="signin-card">
+    <div class="signin-header">
+      <img src="/logo.svg" alt="TechRise Logo" class="logo" />
+      <h1>Welcome Back</h1>
+      <p class="signin-subtitle">Sign in to your account to continue</p>
+    </div>
+
+    <div class="signin-form">
+      <form [formGroup]="signInForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="johndoe@gmail.com" />
+          <mat-icon matSuffix>email</mat-icon>
+          @if (getFieldError('email')) {
+          <mat-error>
+            {{ getFieldError('email') }}
+          </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+          />
+          <mat-icon matSuffix>lock</mat-icon>
+          @if (getFieldError('password')) {
+          <mat-error>
+            {{ getFieldError('password') }}
+          </mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+        }
+
+        <button class="signin-btn" (click)="onSignIn()" [disabled]="isLoading()">
+          @if (isLoading()) {
+          <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+          <ng-container>
+            <mat-icon>login</mat-icon>
+            Sign In
+          </ng-container>
+          }
+        </button>
+      </form>
+    </div>
+
+    <div class="signin-footer">
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <button class="signup-btn" (click)="onSignUp()">
+        <mat-icon>person_add</mat-icon>
+        Create New Account
+      </button>
+    </div>
+  </div>
+</div>

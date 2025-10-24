@@ -12,17 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { countries } from '../../../core/utils/constants';
-
-interface ProfileData {
-  name: string;
-  username: string;
-  email: string;
-  phone: string;
-  country: string;
-  birthdate: string;
-  website: string;
-  profileImage: string;
-}
+import { UserProfile } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-edit-profile-modal',
@@ -52,10 +42,10 @@ export class EditProfileModal implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EditProfileModal>,
-    @Inject(MAT_DIALOG_DATA) public data: ProfileData
+    @Inject(MAT_DIALOG_DATA) public data: UserProfile
   ) {
     console.log('EditProfileModal constructor - data:', data);
-    console.log('Profile image from data:', data.profileImage);
+    console.log('Profile image from data:', data.avatar_url);
   }
 
   ngOnInit() {
@@ -95,9 +85,14 @@ export class EditProfileModal implements OnInit {
       email: this.data.email,
       phone: this.data.phone,
       country: this.data.country,
-      birthdate: this.data.birthdate,
+      birthdate: this.data.birth_date,
       website: this.data.website,
     });
+
+    // Set preview URL if avatar exists
+    if (this.data.avatar_url) {
+      this.previewUrl = this.data.avatar_url;
+    }
   }
 
   onFileSelected(event: any) {
@@ -105,7 +100,7 @@ export class EditProfileModal implements OnInit {
     if (file) {
       if (file.size > 1024 * 1024) {
         alert('File size must be less than 1MB');
-      
+
         event.target.value = '';
         return;
       }
@@ -116,7 +111,6 @@ export class EditProfileModal implements OnInit {
       };
       reader.readAsDataURL(file);
     } else {
-    
       this.selectedFile = null;
     }
   }
@@ -125,7 +119,7 @@ export class EditProfileModal implements OnInit {
     console.log('Deleting image, current previewUrl:', this.previewUrl);
     this.previewUrl = null;
     this.selectedFile = null;
-   
+
     const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -136,9 +130,12 @@ export class EditProfileModal implements OnInit {
   onSave() {
     if (this.editForm.valid) {
       const formData = this.editForm.value;
-      const updatedProfile = {
-        ...formData,
-        profileImage: this.previewUrl || this.data.profileImage,
+      const updatedProfile: Partial<UserProfile> = {
+        username: formData.username,
+        country: formData.country,
+        birth_date: formData.birthdate,
+        website: formData.website,
+        avatar_url: this.previewUrl || this.data.avatar_url,
       };
       this.dialogRef.close(updatedProfile);
     } else {
@@ -184,6 +181,4 @@ export class EditProfileModal implements OnInit {
     }
     return true;
   }
-
-
 }
