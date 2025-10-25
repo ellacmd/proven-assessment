@@ -15,12 +15,13 @@
       <button [matMenuTriggerFor]="userMenu" class="user-menu-trigger">
         @if (currentUser()?.avatar_url) {
         <img
-          [src]="currentUser()?.avatar_url"
+          [src]="
+            (currentUser()?.avatar_url || '') +
+            (currentUser()?.updated_at ? '?v=' + currentUser()?.updated_at : '')
+          "
           [alt]="currentUser()?.username"
           class="user-avatar"
         />
-        } @else {
-        <div class="user-avatar-initials">{{ getInitials() }}</div>
         }
         <span class="user-name">{{ currentUser()?.username }}</span>
         <img src="/arrow-down.svg" alt="dropdown" class="dropdown-icon" />
@@ -70,7 +71,10 @@
       <div class="mobile-user-info">
         @if (currentUser()?.avatar_url) {
         <img
-          [src]="currentUser()?.avatar_url"
+          [src]="
+            (currentUser()?.avatar_url || '') +
+            (currentUser()?.updated_at ? '?v=' + currentUser()?.updated_at : '')
+          "
           [alt]="currentUser()?.username"
           class="mobile-user-avatar"
         />

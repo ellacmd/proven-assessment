@@ -33,6 +33,7 @@ export class SignIn {
   signInForm!: FormGroup;
   isLoading = signal(false);
   errorMessage = signal('');
+  hidePassword = true;
 
   ngOnInit() {
     this.initializeForm();
@@ -41,7 +42,7 @@ export class SignIn {
   initializeForm() {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required]],
     });
   }
 
@@ -85,13 +86,15 @@ export class SignIn {
     if (field?.errors && field.touched) {
       if (field.errors['required']) return `${this.capitalizeFirstLetter(fieldName)} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
-      if (field.errors['minlength'])
-        return `${this.capitalizeFirstLetter(fieldName)} must be at least 6 characters`;
     }
     return '';
   }
 
   private capitalizeFirstLetter(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  togglePasswordVisibility() {
+    this.hidePassword = !this.hidePassword;
   }
 }

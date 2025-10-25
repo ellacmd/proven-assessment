@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import {  User} from '../../shared/models/user.model';
+import { User } from '../../shared/models/user.model';
 import { Observable, from } from 'rxjs';
 
 @Injectable({
@@ -22,7 +22,20 @@ export class UserService {
         return null;
       }
 
-      return data;
+      const mapped: User = {
+        id: userId,
+        email: data.email,
+        username: data.username,
+        phone: data.phone ?? undefined,
+        birth_date: data.birth_date ?? undefined,
+        country: data.country ?? undefined,
+        website: data.website ?? undefined,
+        avatar_url: data.avatar_url ?? undefined,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      };
+
+      return mapped;
     } catch (error) {
       console.error('Error fetching user profile:', error);
       return null;
@@ -61,7 +74,7 @@ export class UserService {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const filePath = `${userId}/${fileName}`;
 
       const { error: uploadError } = await this.supabaseService.client.storage
         .from('avatars')
@@ -91,8 +104,17 @@ export class UserService {
 
   async deleteAvatar(userId: string): Promise<{ success: boolean; error?: string }> {
     try {
+      const { data: files, error: listError } = await this.supabaseService.client.storage
+        .from('avatars')
+        .list(userId);
+
+      if (!listError && files && files.length > 0) {
+        const paths = files.map((f: any) => `${userId}/${f.name}`);
+        await this.supabaseService.client.storage.from('avatars').remove(paths);
+      }
+
       const updateResult = await this.updateUserProfile(userId, {
-        avatar_url: undefined,
+        avatar_url: null as unknown as any,
       });
 
       if (!updateResult.success) {

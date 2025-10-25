@@ -22,8 +22,11 @@
       <div class="profile-picture">
         @if (hasProfileImage) {
         <img
-          [src]="profileData()?.avatar_url"
-          [alt]="profileData()?.username + ' Profile Picture'"
+          [src]="
+            (currentUser()?.avatar_url || '') +
+            (currentUser()?.updated_at ? '?v=' + currentUser()?.updated_at : '')
+          "
+          [alt]="currentUser()?.username + ' Profile Picture'"
         />
         } @else {
         <div class="profile-initials">
@@ -31,7 +34,7 @@
         </div>
         }
       </div>
-      <h2 class="profile-name">{{ profileData()?.username }}</h2>
+      <h2 class="profile-name">{{ currentUser()?.username }}</h2>
       <button class="edit-profile-btn" (click)="onEditProfile()">
         <img src="/edit.svg" alt="Edit" class="icon" />
         Edit Profile
@@ -42,8 +45,11 @@
       <div class="profile-picture profile-picture-mobile">
         @if (hasProfileImage) {
         <img
-          [src]="profileData()?.avatar_url"
-          [alt]="profileData()?.username + ' Profile Picture'"
+          [src]="
+            (currentUser()?.avatar_url || '') +
+            (currentUser()?.updated_at ? '?v=' + currentUser()?.updated_at : '')
+          "
+          [alt]="currentUser()?.username + ' Profile Picture'"
         />
         } @else {
         <div class="profile-initials">
@@ -51,7 +57,7 @@
         </div>
         }
       </div>
-      <h2 class="profile-name profile-name-mobile">{{ profileData()?.username }}</h2>
+      <h2 class="profile-name profile-name-mobile">{{ currentUser()?.username }}</h2>
       <h3 class="profile-info-header">Profile Info</h3>
       <div class="profile-info-content">
         <div class="info-grid">
@@ -61,7 +67,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Username</span>
-              <span class="info-value">{{ profileData()?.username }}</span>
+              <span class="info-value">{{ currentUser()?.username }}</span>
             </div>
           </div>
 
@@ -71,7 +77,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Phone</span>
-              <span class="info-value">{{ profileData()?.phone }}</span>
+              <span class="info-value">{{ currentUser()?.phone }}</span>
             </div>
           </div>
 
@@ -81,7 +87,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Country</span>
-              <span class="info-value">{{ profileData()?.country }}</span>
+              <span class="info-value">{{ currentUser()?.country }}</span>
             </div>
           </div>
 
@@ -91,7 +97,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Email</span>
-              <span class="info-value">{{ profileData()?.email }}</span>
+              <span class="info-value">{{ currentUser()?.email }}</span>
             </div>
           </div>
 
@@ -101,7 +107,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Birthdate</span>
-              <span class="info-value">{{ profileData()?.birth_date }}</span>
+              <span class="info-value">{{ currentUser()?.birth_date }}</span>
             </div>
           </div>
 
@@ -111,7 +117,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Website</span>
-              <span class="info-value">{{ profileData()?.website }}</span>
+              <span class="info-value">{{ currentUser()?.website }}</span>
             </div>
           </div>
         </div>

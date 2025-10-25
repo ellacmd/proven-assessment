@@ -94,13 +94,6 @@ export class AuthService {
 
       if (error) return { success: false, error: error.message };
 
-      if (data.user) {
-        await this.createUserProfile(data.user.id, signUpData);
-
-        if (signUpData.avatar) {
-          await this.uploadAvatar(data.user.id, signUpData.avatar);
-        }
-      }
 
       return { success: true };
     } catch (error) {
@@ -123,7 +116,6 @@ export class AuthService {
 
       if (data.user) {
         await this.loadUserProfile(data.user.id);
-        this.router.navigate(['/profile']);
       }
 
       return { success: true };
@@ -138,17 +130,11 @@ export class AuthService {
     this.setLoading(true);
 
     try {
-      const { error } = await this.supabaseService.client.auth.signOut();
-      if (error) {
-        console.error('Error signing out:', error);
-        throw error;
-      }
       this.clearUser();
-      this.router.navigate(['/']);
-    } catch (error) {
-      console.error('Error signing out:', error);
-      this.clearUser();
-      this.router.navigate(['/']);
+      this.router.navigate(['/'], { replaceUrl: true });
+      void this.supabaseService.client.auth.signOut().catch((err) => {
+        console.error('Error signing out:', err);
+      });
     } finally {
       this.setLoading(false);
     }
@@ -193,8 +179,8 @@ export class AuthService {
       if (profile) {
         const user: User = {
           id: userId,
-          email: profile.email ,
-          username: profile.username ,
+          email: profile.email,
+          username: profile.username,
           phone: profile.phone,
           birth_date: profile.birth_date,
           country: profile.country,
@@ -204,23 +190,81 @@ export class AuthService {
           updated_at: profile.updated_at,
         };
         this.setUser(user);
+      } else {
+        const { data: userResp } = await this.supabaseService.client.auth.getUser();
+        const authUser = userResp?.user;
+        if (authUser) {
+          const meta: Record<string, any> = (authUser as any).user_metadata || {};
+          const fallbackUser: User = {
+            id: authUser.id,
+            email: authUser.email || '',
+            username: meta['username'] || authUser.email || 'User',
+            phone: meta['phone'] || undefined,
+            birth_date: meta['birth_date'] || undefined,
+            country: meta['country'] || undefined,
+            website: meta['website'] || undefined,
+            avatar_url: undefined,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          this.setUser(fallbackUser);
+
+          try {
+            await this.createUserProfile(authUser.id, {
+              email: fallbackUser.email,
+              password: '',
+              username: fallbackUser.username,
+              phone: fallbackUser.phone,
+              birth_date: fallbackUser.birth_date,
+              country: fallbackUser.country,
+              website: fallbackUser.website,
+              avatar: undefined,
+            });
+          } catch {
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
     }
   }
 
+  async refreshUserProfile(userId?: string): Promise<void> {
+    try {
+      let id = userId;
+      if (!id) {
+        const current = this.userSignal();
+        if (current?.id) {
+          id = current.id;
+        } else {
+          const {
+            data: { session },
+          } = await this.supabaseService.client.auth.getSession();
+          id = session?.user?.id;
+        }
+      }
+      if (id) {
+        await this.loadUserProfile(id);
+      }
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
+    }
+  }
+
   private async createUserProfile(userId: string, signUpData: SignUpData): Promise<void> {
     try {
-      await this.supabaseService.client.from('user_profiles').insert({
-        user_id: userId,
-        username: signUpData.username,
-        email: signUpData.email,
-        phone: signUpData.phone,
-        birth_date: signUpData.birth_date,
-        country: signUpData.country,
-        website: signUpData.website,
-      });
+      await this.supabaseService.client.from('user_profiles').upsert(
+        {
+          user_id: userId,
+          username: signUpData.username,
+          email: signUpData.email,
+          phone: signUpData.phone,
+          birth_date: signUpData.birth_date,
+          country: signUpData.country,
+          website: signUpData.website,
+        },
+        { onConflict: 'user_id' }
+      );
     } catch (error) {
       console.error('Error creating user profile:', error);
     }
@@ -230,11 +274,11 @@ export class AuthService {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const filePath = `${userId}/${fileName}`;
 
       const { error: uploadError } = await this.supabaseService.client.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) {
         console.error('Error uploading avatar:', uploadError);
@@ -246,6 +290,21 @@ export class AuthService {
     } catch (error) {
       console.error('Error uploading avatar:', error);
       return null;
+    }
+  }
+
+  private async updateUserProfileAvatar(userId: string, avatarUrl: string): Promise<void> {
+    try {
+      const { error } = await this.supabaseService.client
+        .from('user_profiles')
+        .update({ avatar_url: avatarUrl })
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error updating user profile with avatar URL:', error);
+      }
+    } catch (error) {
+      console.error('Error updating user profile with avatar URL:', error);
     }
   }
 

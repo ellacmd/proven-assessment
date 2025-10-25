@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -12,7 +12,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { countries } from '../../../core/utils/constants';
-import { UserProfile } from '../../../shared/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { User } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-edit-profile-modal',
@@ -30,19 +31,25 @@ import { UserProfile } from '../../../shared/models/user.model';
     MatIconModule,
     MatCardModule,
   ],
+  providers: [],
   templateUrl: './edit-profile-modal.html',
   styleUrl: './edit-profile-modal.css',
 })
 export class EditProfileModal implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
+
   editForm!: FormGroup;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   filteredCountries: string[] = [];
+  avatarRemoved = false;
+  private originalUser: User | null = null;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EditProfileModal>,
-    @Inject(MAT_DIALOG_DATA) public data: UserProfile
+    @Inject(MAT_DIALOG_DATA) public data: User
   ) {
     console.log('EditProfileModal constructor - data:', data);
     console.log('Profile image from data:', data.avatar_url);
@@ -80,18 +87,19 @@ export class EditProfileModal implements OnInit {
   }
 
   loadExistingData() {
+    this.originalUser = this.authService.currentUser() || this.data;
+
     this.editForm.patchValue({
-      username: this.data.username,
-      email: this.data.email,
-      phone: this.data.phone,
-      country: this.data.country,
-      birthdate: this.data.birth_date,
-      website: this.data.website,
+      username: this.originalUser?.username || '',
+      email: this.originalUser?.email || '',
+      phone: this.originalUser?.phone || '',
+      country: this.originalUser?.country || '',
+      birthdate: this.originalUser?.birth_date || '',
+      website: this.originalUser?.website || '',
     });
 
-    // Set preview URL if avatar exists
-    if (this.data.avatar_url) {
-      this.previewUrl = this.data.avatar_url;
+    if (this.originalUser?.avatar_url) {
+      this.previewUrl = this.originalUser.avatar_url;
     }
   }
 
@@ -105,9 +113,11 @@ export class EditProfileModal implements OnInit {
         return;
       }
       this.selectedFile = file;
+      this.avatarRemoved = false;
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.previewUrl = e.target.result;
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     } else {
@@ -119,6 +129,7 @@ export class EditProfileModal implements OnInit {
     console.log('Deleting image, current previewUrl:', this.previewUrl);
     this.previewUrl = null;
     this.selectedFile = null;
+    this.avatarRemoved = true;
 
     const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
     if (fileInput) {
@@ -130,14 +141,26 @@ export class EditProfileModal implements OnInit {
   onSave() {
     if (this.editForm.valid) {
       const formData = this.editForm.value;
-      const updatedProfile: Partial<UserProfile> = {
-        username: formData.username,
-        country: formData.country,
-        birth_date: formData.birthdate,
-        website: formData.website,
-        avatar_url: this.previewUrl || this.data.avatar_url,
-      };
-      this.dialogRef.close(updatedProfile);
+      const updatedProfile: Partial<User> = {};
+
+      if ((formData.username || '') !== (this.originalUser?.username || '')) {
+        updatedProfile.username = formData.username || '';
+      }
+      if ((formData.country || '') !== (this.originalUser?.country || '')) {
+        updatedProfile.country = formData.country || '';
+      }
+      if ((formData.birthdate || '') !== (this.originalUser?.birth_date || '')) {
+        updatedProfile.birth_date = formData.birthdate || '';
+      }
+      if ((formData.website || '') !== (this.originalUser?.website || '')) {
+        updatedProfile.website = formData.website || '';
+      }
+
+      this.dialogRef.close({
+        updatedProfile,
+        avatarFile: this.selectedFile,
+        avatarRemoved: this.avatarRemoved,
+      });
     } else {
       this.markFormGroupTouched(this.editForm);
     }

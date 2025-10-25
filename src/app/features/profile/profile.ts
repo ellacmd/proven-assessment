@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EditProfileModal } from './edit-profile-modal/edit-profile-modal';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
-import { User, UserProfile } from '../../shared/models/user.model';
+import { User } from '../../shared/models/user.model';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -23,21 +23,17 @@ export class ProfilePage implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
 
-  profileData = signal<UserProfile | null>(null);
   isLoading = signal(false);
   errorMessage = signal('');
 
-  // Computed properties
   currentUser = computed(() => this.authService.currentUser());
   isAuthenticated = computed(() => this.authService.isAuthenticated());
 
   ngOnInit() {
     this.loadUserProfile();
 
-    // Subscribe to query parameter changes
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       if (params['edit']) {
-        // Small delay to ensure profile is loaded
         setTimeout(() => {
           this.onEditProfile();
         }, 100);
@@ -58,33 +54,11 @@ export class ProfilePage implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Loading profile for user:', user.id);
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {
-      const profile = await this.userService.getUserProfile(user.id);
-      if (profile) {
-        console.log('Profile loaded successfully:', profile);
-        this.profileData.set(profile);
-      } else {
-        console.log('No profile found, creating basic profile data');
-        // Create a basic profile from user data
-        const basicProfile = {
-          id: user.id,
-          user_id: user.id,
-          username: user.username || 'User',
-          email: user.email || '',
-          phone: user.phone || '',
-          birth_date: user.birth_date || '',
-          country: user.country || '',
-          website: user.website || '',
-          avatar_url: user.avatar_url || '',
-          created_at: user.created_at || new Date().toISOString(),
-          updated_at: user.updated_at || new Date().toISOString(),
-        };
-        this.profileData.set(basicProfile);
-      }
+      await this.authService.refreshUserProfile(user.id);
     } catch (error) {
       console.error('Error loading profile:', error);
       this.errorMessage.set('An error occurred while loading profile');
@@ -94,7 +68,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   get initials(): string {
-    const profile = this.profileData();
+    const profile = this.currentUser();
     if (!profile?.username) return 'U';
 
     return profile.username
@@ -105,12 +79,12 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   get hasProfileImage(): boolean {
-    const profile = this.profileData();
+    const profile = this.currentUser();
     return !!(profile?.avatar_url && profile.avatar_url.trim() !== '');
   }
 
   onEditProfile(): void {
-    const profile = this.profileData();
+    const profile = this.currentUser();
     if (!profile) return;
 
     const dialogRef = this.dialog.open(EditProfileModal, {
@@ -123,13 +97,16 @@ export class ProfilePage implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(async (result) => {
-      if (result) {
-        await this.updateProfile(result);
-      }
+      if (!result) return;
+      await this.handleProfileUpdate(result);
     });
   }
 
-  async updateProfile(updatedData: Partial<UserProfile>) {
+  private async handleProfileUpdate(result: {
+    updatedProfile: Partial<User>;
+    avatarFile?: File | null;
+    avatarRemoved?: boolean;
+  }) {
     const user = this.currentUser();
     if (!user) return;
 
@@ -137,14 +114,32 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.errorMessage.set('');
 
     try {
-      const result = await this.userService.updateUserProfile(user.id, updatedData);
-
-      if (result.success) {
-        // Reload profile data
-        await this.loadUserProfile();
-      } else {
-        this.errorMessage.set(result.error || 'Failed to update profile');
+      if (result.avatarRemoved) {
+        const del = await this.userService.deleteAvatar(user.id);
+        if (!del.success) {
+          this.errorMessage.set(del.error || 'Failed to delete avatar');
+        }
+      } else if (result.avatarFile) {
+        const up = await this.userService.uploadAvatar(user.id, result.avatarFile);
+        if (!up.success) {
+          this.errorMessage.set(up.error || 'Failed to upload avatar');
+        } else {
+          result.updatedProfile = { ...result.updatedProfile, avatar_url: up.url };
+        }
       }
+
+      const { username, country, birth_date, website, phone, email } = result.updatedProfile;
+      const hasNonAvatarChanges = [username, country, birth_date, website, phone, email].some(
+        (v) => v !== undefined
+      );
+      if (hasNonAvatarChanges) {
+        const update = await this.userService.updateUserProfile(user.id, result.updatedProfile);
+        if (!update.success) {
+          this.errorMessage.set(update.error || 'Failed to update profile');
+        }
+      }
+
+      await this.authService.refreshUserProfile(user.id);
     } catch (error) {
       this.errorMessage.set('An error occurred while updating profile');
     } finally {

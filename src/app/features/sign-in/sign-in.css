@@ -51,35 +51,56 @@
     margin-bottom: 1.5rem;
 }
 
-.signin-btn {
+.btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 100%;
+    max-width: 320px;
     padding: 14px 24px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
+
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 1rem;
 }
 
-.signin-btn:hover:not(:disabled) {
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
     background-color: #0056b3;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.signin-btn:disabled {
+.btn-primary:disabled {
     background-color: #6c757d;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
+    padding: 12px 24px;
+}
+
+.btn-secondary:hover {
+    background-color: #007bff;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.signin-btn {
+    margin: 1rem auto 0 auto;
 }
 
 .signin-btn mat-icon {
@@ -90,19 +111,11 @@
 
 .error-message {
     color: #dc3545;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     text-align: center;
-    margin: 1rem 0;
-    padding: 0.75rem;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 6px;
+    margin: 0.75rem 0 0.25rem 0;
 }
 
-.signin-footer {
-    border-top: 1px solid #e9ecef;
-    padding-top: 2rem;
-}
 
 .divider {
     position: relative;
@@ -129,20 +142,7 @@
 }
 
 .signup-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px 24px;
-    background-color: transparent;
-    color: #007bff;
-    border: 2px solid #007bff;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    margin: 0 auto;
 }
 
 .signup-btn:hover {
@@ -158,7 +158,7 @@
     height: 20px;
 }
 
-/* Material Form Field Customization */
+
 ::ng-deep .mat-mdc-form-field {
     .mat-mdc-form-field-outline {
         color: #dee2e6;
@@ -195,7 +195,6 @@
     }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .signin-container {
         padding: 1rem;
