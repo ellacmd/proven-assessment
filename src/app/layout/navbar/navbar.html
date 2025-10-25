@@ -5,7 +5,7 @@
     <li>About Us</li>
     <li>Pricing</li>
 
-    @if (!isAuthenticated()) {
+    @if (!isAuthenticated() || !isOnProfileRoute()) {
     <li>
       <button class="nav-button" (click)="onSignInClick()">Sign In</button>
     </li>
@@ -22,8 +22,9 @@
           [alt]="currentUser()?.username"
           class="user-avatar"
         />
-        }
+        } @if (isOnProfileRoute()) {
         <span class="user-name">{{ currentUser()?.username }}</span>
+        }
         <img src="/arrow-down.svg" alt="dropdown" class="dropdown-icon" />
       </button>
       <mat-menu #userMenu="matMenu" class="user-dropdown">
@@ -59,12 +60,12 @@
     <a mat-list-item (click)="toggleDrawer()">About Us</a>
     <a mat-list-item (click)="toggleDrawer()">Pricing</a>
 
-    @if (!isAuthenticated()) {
+    @if (!isAuthenticated() || !isOnProfileRoute()) {
     <a mat-list-item (click)="onSignInClick(); toggleDrawer()">
-      <button class="nav-button mobile-signin-btn">Sign In</button>
+    Sign In
     </a>
-    <a (click)="onRegistrationClick(); toggleDrawer()">
-      <button class="nav-button mobile-registration-btn">Registration</button>
+    <a mat-list-item (click)="onRegistrationClick(); toggleDrawer()">
+      Registration
     </a>
     } @else {
     <div class="mobile-user-profile">
@@ -78,11 +79,11 @@
           [alt]="currentUser()?.username"
           class="mobile-user-avatar"
         />
-        } @else {
-        <div class="mobile-user-avatar-initials">{{ getInitials() }}</div>
         }
         <div class="mobile-user-details">
+          @if (isOnProfileRoute()) {
           <span class="mobile-user-name">{{ currentUser()?.username }}</span>
+          }
           <span class="mobile-user-email">{{ currentUser()?.email }}</span>
         </div>
       </div>

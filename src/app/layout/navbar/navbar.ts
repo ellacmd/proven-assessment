@@ -5,9 +5,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, filter } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -28,6 +28,7 @@ export class Navbar implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   drawerOpened = signal(false);
+  isOnProfileRoute = signal(false);
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
   currentUser = computed(() => this.authService.currentUser());
@@ -36,6 +37,16 @@ export class Navbar implements OnInit, OnDestroy {
   ngOnInit() {
     this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(() => {});
     this.authService.refreshUserProfile();
+
+    this.isOnProfileRoute.set(this.router.url.startsWith('/profile'));
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.isOnProfileRoute.set(this.router.url.startsWith('/profile'));
+      });
   }
 
   ngOnDestroy() {

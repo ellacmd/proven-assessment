@@ -7,6 +7,7 @@ import {
   signal,
   computed,
   inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -25,6 +26,7 @@ import { Router } from '@angular/router';
 import { countries } from '../../core/utils/constants';
 import { AuthService } from '../../core/services/auth.service';
 import { SignUpData } from '../../shared/models/user.model';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -51,7 +53,9 @@ export class SignUp implements OnInit {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   registrationForm!: FormGroup;
   verificationForm!: FormGroup;
@@ -70,18 +74,15 @@ export class SignUp implements OnInit {
   }
 
   initializeForms() {
-    this.registrationForm = this.fb.group(
-      {
-        username: ['', [Validators.required, Validators.minLength(3)]],
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        birthDate: ['', Validators.required],
-        country: ['', Validators.required],
-        phone: ['', Validators.required],
-        website: [''],
-      },
-      { validators: this.passwordMatchValidator }
-    );
+    this.registrationForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      birthDate: ['', Validators.required],
+      country: ['', Validators.required],
+      phone: ['', Validators.required],
+      website: [''],
+    });
 
     this.verificationForm = this.fb.group({
       digit1: ['', [Validators.required, Validators.pattern(/^\d$/)]],
@@ -91,19 +92,6 @@ export class SignUp implements OnInit {
       digit5: ['', [Validators.required, Validators.pattern(/^\d$/)]],
       digit6: ['', [Validators.required, Validators.pattern(/^\d$/)]],
     });
-  }
-
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
-
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-    } else {
-      confirmPassword?.setErrors(null);
-    }
-
-    return null;
   }
 
   setupCountryFiltering() {
@@ -131,6 +119,7 @@ export class SignUp implements OnInit {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.previewUrl = e.target.result;
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
@@ -143,13 +132,15 @@ export class SignUp implements OnInit {
         console.log(`${key} errors:`, control.errors);
       }
     });
-
     if (this.registrationForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set('');
 
+      console.log('test');
+
       try {
         const formData = this.registrationForm.value;
+
         const signUpData: SignUpData = {
           email: formData.email,
           password: formData.password,
@@ -161,18 +152,19 @@ export class SignUp implements OnInit {
           avatar: this.selectedFile || undefined,
         };
 
+        console.log('Submitting signup request');
         const result = await this.authService.signUp(signUpData);
+        console.log('Signup result:', result);
 
         if (result.success) {
           stepper.next();
           this.currentStep.set(1);
           this.startTimer(120);
           this.sendVerificationCode();
-        } else {
-          this.errorMessage.set(result.error || 'Registration failed');
         }
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage.set('An unexpected error occurred');
+        console.error('Signup error:', error);
       } finally {
         this.isLoading.set(false);
       }
@@ -202,6 +194,17 @@ export class SignUp implements OnInit {
           const signInResult = await this.authService.signIn(email, password);
 
           if (signInResult.success) {
+            if (this.selectedFile) {
+              const current = this.authService.currentUser();
+              const userId = current?.id;
+              if (userId) {
+                const up = await this.userService.uploadAvatar(userId, this.selectedFile);
+                if (!up.success) {
+                  this.errorMessage.set(up.error || 'Failed to upload avatar');
+                }
+                await this.authService.refreshUserProfile(userId);
+              }
+            }
             this.router.navigate(['/profile']);
           } else {
             this.errorMessage.set(signInResult.error || 'Authentication failed');
@@ -218,7 +221,6 @@ export class SignUp implements OnInit {
   }
 
   async onResendCode() {
-    this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {

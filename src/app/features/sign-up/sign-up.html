@@ -1,6 +1,6 @@
 <div class="signup-container">
-  <mat-stepper #stepper class="custom-stepper">
-    <mat-step [stepControl]="registrationForm" label="Registration">
+  <mat-stepper #stepper class="custom-stepper" linear="true">
+    <mat-step [stepControl]="registrationForm" label="Registration" [editable]="false">
       <div class="form-container">
         <div class="avatar-section">
           <h3>Profile picture</h3>
@@ -193,21 +193,19 @@
             </div>
 
             <div class="timer-section">
-              <div class="timer" [class.expired]="timer() <= 0">
+              @if (timer() > 0) {
+              <div class="timer">
                 <mat-icon>timer</mat-icon>
                 You can request a new OTP in: {{ formatTime(timer()) }}
               </div>
+              } @else {
               <div class="resend-section">
                 <p class="resend-text">Didn't receive the code?</p>
-                <button
-                  mat-stroked-button
-                  color="primary"
-                  (click)="onResendCode()"
-                  [disabled]="isResendDisabled()"
-                >
+                <button mat-stroked-button color="primary" (click)="onResendCode()">
                   Resend OTP
                 </button>
               </div>
+              }
             </div>
 
             @if (errorMessage()) {
@@ -217,11 +215,11 @@
             }
 
             <div class="step-actions">
-              <button mat-stroked-button color="primary" (click)="onBack(stepper)">
-                <mat-icon>arrow_back</mat-icon>
-                Back
-              </button>
-              <button class="next-btn" (click)="onVerify()" [disabled]="!verificationForm.valid || isLoading()">
+              <button
+                class="next-btn"
+                (click)="onVerify()"
+                [disabled]="!verificationForm.valid || isLoading()"
+              >
                 @if (isLoading()) {
                 <mat-spinner diameter="20"></mat-spinner>
                 } @else {

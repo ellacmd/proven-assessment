@@ -78,6 +78,21 @@ export class AuthService {
     this.setLoading(true);
 
     try {
+      console.log('AuthService.signUp: start');
+      const payload = {
+        email: signUpData.email,
+        password: '***',
+        options: {
+          data: {
+            username: signUpData.username,
+            phone: signUpData.phone,
+            birth_date: signUpData.birth_date,
+            country: signUpData.country,
+            website: signUpData.website,
+          },
+        },
+      } as const;
+      console.log('AuthService.signUp: calling supabase.auth.signUp');
       const { data, error } = await this.supabaseService.client.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
@@ -91,12 +106,11 @@ export class AuthService {
           },
         },
       });
-
+      console.log('AuthService.signUp: response', { hasData: !!data, hasError: !!error });
       if (error) return { success: false, error: error.message };
-
-
       return { success: true };
     } catch (error) {
+      console.error('AuthService.signUp: exception', error);
       return { success: false, error: 'Sign up failed' };
     } finally {
       this.setLoading(false);
@@ -220,8 +234,7 @@ export class AuthService {
               website: fallbackUser.website,
               avatar: undefined,
             });
-          } catch {
-          }
+          } catch {}
         }
       }
     } catch (error) {

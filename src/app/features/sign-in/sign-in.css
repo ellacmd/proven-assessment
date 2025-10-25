@@ -159,41 +159,6 @@
 }
 
 
-::ng-deep .mat-mdc-form-field {
-    .mat-mdc-form-field-outline {
-        color: #dee2e6;
-    }
-
-    .mat-mdc-form-field-outline-thick {
-        color: #007bff;
-    }
-
-    .mat-mdc-form-field-label {
-        color: #6c757d;
-    }
-
-    .mat-mdc-form-field-label.mdc-floating-label--float-above {
-        color: #007bff;
-    }
-
-    .mat-mdc-input-element {
-        color: #333;
-    }
-
-    .mat-mdc-form-field-icon-suffix {
-        color: #6c757d;
-    }
-}
-
-::ng-deep .mat-mdc-form-field.mat-form-field-invalid {
-    .mat-mdc-form-field-outline {
-        color: #dc3545;
-    }
-
-    .mat-mdc-form-field-label {
-        color: #dc3545;
-    }
-}
 
 @media (max-width: 768px) {
     .signin-container {
