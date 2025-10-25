@@ -141,7 +141,7 @@
             }
 
             <div class="step-actions">
-              <button class="next-btn" (click)="onSave(stepper)" [disabled]="isLoading()">
+              <button class="next-btn" (click)="onSave(stepper)" [disabled]="isLoading() || !registrationForm.valid">
                 @if (isLoading()) {
                 <mat-spinner diameter="20"></mat-spinner>
                 } @else {

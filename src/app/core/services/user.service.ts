@@ -9,38 +9,7 @@ import { Observable, from } from 'rxjs';
 export class UserService {
   constructor(private supabaseService: SupabaseService) {}
 
-  async getUserProfile(userId: string): Promise<User | null> {
-    try {
-      const { data, error } = await this.supabaseService.client
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
 
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        return null;
-      }
-
-      const mapped: User = {
-        id: userId,
-        email: data.email,
-        username: data.username,
-        phone: data.phone ?? undefined,
-        birth_date: data.birth_date ?? undefined,
-        country: data.country ?? undefined,
-        website: data.website ?? undefined,
-        avatar_url: data.avatar_url ?? undefined,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
-      };
-
-      return mapped;
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      return null;
-    }
-  }
 
   async updateUserProfile(
     userId: string,
@@ -127,7 +96,4 @@ export class UserService {
     }
   }
 
-  getUserProfileObservable(userId: string): Observable<User | null> {
-    return from(this.getUserProfile(userId));
-  }
 }

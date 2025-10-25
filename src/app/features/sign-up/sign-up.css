@@ -107,6 +107,12 @@
     height: 20px;
 }
 
+.next-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+
+}
+
 .upload-instructions {
     text-align: center;
     color: #6c757d;

@@ -126,120 +126,65 @@ export class SignUp implements OnInit {
   }
 
   async onSave(stepper: any) {
-    Object.keys(this.registrationForm.controls).forEach((key) => {
-      const control = this.registrationForm.get(key);
-      if (control?.errors) {
-        console.log(`${key} errors:`, control.errors);
-      }
-    });
-    if (this.registrationForm.valid) {
-      this.isLoading.set(true);
-      this.errorMessage.set('');
+    if (!this.registrationForm.valid) return;
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
-      console.log('test');
+    try {
+      const formData = this.registrationForm.value;
 
-      try {
-        const formData = this.registrationForm.value;
+      const signUpData: SignUpData = {
+        email: formData.email,
+        password: formData.password,
+        username: formData.username,
+        phone: formData.phone,
+        birth_date: formData.birthDate,
+        country: formData.country,
+        website: formData.website,
+        avatar: this.selectedFile || undefined,
+      };
+      const result = await this.authService.signUp(signUpData);
 
-        const signUpData: SignUpData = {
-          email: formData.email,
-          password: formData.password,
-          username: formData.username,
-          phone: formData.phone,
-          birth_date: formData.birthDate,
-          country: formData.country,
-          website: formData.website,
-          avatar: this.selectedFile || undefined,
-        };
-
-        console.log('Submitting signup request');
-        const result = await this.authService.signUp(signUpData);
-        console.log('Signup result:', result);
-
-        if (result.success) {
-          stepper.next();
-          this.currentStep.set(1);
-          this.startTimer(120);
-          this.sendVerificationCode();
-        }
-      } catch (error: any) {
-        this.errorMessage.set('An unexpected error occurred');
-        console.error('Signup error:', error);
-      } finally {
+      if (result.success) {
         this.isLoading.set(false);
+        stepper.next();
+        if (this.selectedFile) {
+          const current = this.authService.currentUser();
+          const userId = current?.id;
+          if (userId) {
+            const up = await this.userService.uploadAvatar(userId, this.selectedFile);
+            if (!up.success) {
+              this.errorMessage.set(up.error || 'Failed to upload avatar');
+            }
+            await this.authService.refreshUserProfile(userId);
+          }
+        }
+        this.currentStep.set(1);
+        this.startTimer(120);
+      } else {
+        this.errorMessage.set(result.error || 'Sign up failed');
       }
-    } else {
-      this.markFormGroupTouched(this.registrationForm);
+    } catch (error: any) {
+      this.errorMessage.set(error?.error || error?.message || 'Sign up failed');
+    } finally {
+      this.isLoading.set(false);
     }
-  }
-
-  onBack(stepper: any) {
-    stepper.previous();
   }
 
   async onVerify() {
     if (this.verificationForm.valid) {
       this.isLoading.set(true);
-      this.errorMessage.set('');
 
-      try {
-        const code = Object.values(this.verificationForm.value).join('');
-        const email = this.registrationForm.get('email')?.value;
-        const password = this.registrationForm.get('password')?.value;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        if (email && password) {
-          console.log('Mock verification successful for code:', code);
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          const signInResult = await this.authService.signIn(email, password);
-
-          if (signInResult.success) {
-            if (this.selectedFile) {
-              const current = this.authService.currentUser();
-              const userId = current?.id;
-              if (userId) {
-                const up = await this.userService.uploadAvatar(userId, this.selectedFile);
-                if (!up.success) {
-                  this.errorMessage.set(up.error || 'Failed to upload avatar');
-                }
-                await this.authService.refreshUserProfile(userId);
-              }
-            }
-            this.router.navigate(['/profile']);
-          } else {
-            this.errorMessage.set(signInResult.error || 'Authentication failed');
-          }
-        }
-      } catch (error) {
-        this.errorMessage.set('An unexpected error occurred');
-      } finally {
-        this.isLoading.set(false);
-      }
-    } else {
-      this.markFormGroupTouched(this.verificationForm);
+      this.isLoading.set(false);
+      this.router.navigate(['/profile']);
     }
   }
 
   async onResendCode() {
     this.errorMessage.set('');
-
-    try {
-      const email = this.registrationForm.get('email')?.value;
-      if (email) {
-        const result = await this.authService.sendVerificationCode(email);
-
-        if (result.success) {
-          this.startTimer(120);
-          this.sendVerificationCode();
-        } else {
-          this.errorMessage.set(result.error || 'Failed to send verification code');
-        }
-      }
-    } catch (error) {
-      this.errorMessage.set('An unexpected error occurred');
-    } finally {
-      this.isLoading.set(false);
-    }
+    this.startTimer(120);
   }
 
   startTimer(seconds: number) {
@@ -254,13 +199,6 @@ export class SignUp implements OnInit {
         return newValue;
       });
     }, 1000);
-  }
-
-  async sendVerificationCode() {
-    const email = this.registrationForm.get('email')?.value;
-    if (email) {
-      await this.authService.sendVerificationCode(email);
-    }
   }
 
   formatTime(seconds: number): string {
