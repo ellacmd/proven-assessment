@@ -11,16 +11,17 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { countries } from '../../../core/utils/constants';
 import { AuthService } from '../../../core/services/auth.service';
-import { User } from '../../../shared/models/user.model';
+import { User, CountryInfo, CountryApiResponse } from '../../../shared/models/user.model';
 import { birthDateValidator, websiteUrlValidator } from '../../../core/utils/validators';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-edit-profile-modal',
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    HttpClientModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
@@ -39,13 +40,16 @@ import { birthDateValidator, websiteUrlValidator } from '../../../core/utils/val
 export class EditProfileModal implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
+  private http = inject(HttpClient);
 
   editForm!: FormGroup;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
-  filteredCountries: string[] = [];
+  countries: CountryInfo[] = [];
+  filteredCountries: CountryInfo[] = [];
   avatarRemoved = false;
   private originalUser: User | null = null;
+  today: Date = new Date();
 
   constructor(
     private fb: FormBuilder,
@@ -57,6 +61,7 @@ export class EditProfileModal implements OnInit {
     this.initializeForm();
     this.setupCountryFiltering();
     this.loadExistingData();
+    this.loadCountries();
   }
 
   initializeForm() {
@@ -65,7 +70,7 @@ export class EditProfileModal implements OnInit {
       email: [{ value: '', disabled: true }],
       phone: [{ value: '', disabled: true }],
       country: ['', Validators.required],
-      birthdate: ['', [Validators.required, birthDateValidator(13)]],
+      birthdate: ['', [Validators.required, birthDateValidator()]],
       website: ['', websiteUrlValidator()],
     });
   }
@@ -73,15 +78,47 @@ export class EditProfileModal implements OnInit {
   setupCountryFiltering() {
     this.editForm.get('country')?.valueChanges.subscribe((value) => {
       if (value && typeof value === 'string') {
-        this.filteredCountries = countries.filter((country) =>
-          country.toLowerCase().includes(value.toLowerCase())
-        );
+        const lower = value.toLowerCase();
+        this.filteredCountries = this.countries.filter((c) => c.name.toLowerCase().includes(lower));
       } else {
-        this.filteredCountries = [...countries];
+        this.filteredCountries = [...this.countries];
       }
     });
 
-    this.filteredCountries = [...countries];
+    this.filteredCountries = [...this.countries];
+  }
+
+  loadCountries() {
+    this.http
+      .get<CountryApiResponse[]>('https://restcountries.com/v3.1/all?fields=name,flags,idd,cca2')
+      .subscribe({
+        next: (res) => {
+          const mapped: CountryInfo[] = res
+            .map((c) => {
+              const root: string | undefined = c?.idd?.root;
+              const suffixes: string[] | undefined = c?.idd?.suffixes;
+              const dial = root
+                ? `${root}${Array.isArray(suffixes) && suffixes.length ? suffixes[0] : ''}`
+                : '';
+              return {
+                name: c?.name?.common ?? '',
+                flag: c?.flags?.svg ?? c?.flags?.png ?? '',
+                dialCode: dial,
+                cca2: c?.cca2 ?? '',
+              } as CountryInfo;
+            })
+            .filter((c: CountryInfo) => !!c.name);
+
+          mapped.sort((a, b) => a.name.localeCompare(b.name));
+          this.countries = mapped;
+          this.filteredCountries = [...this.countries];
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.countries = [];
+          this.filteredCountries = [];
+        },
+      });
   }
 
   loadExistingData() {
@@ -114,8 +151,8 @@ export class EditProfileModal implements OnInit {
       this.selectedFile = file;
       this.avatarRemoved = false;
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewUrl = e.target.result;
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.previewUrl = e.target?.result as string;
         this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
@@ -175,7 +212,7 @@ export class EditProfileModal implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    if (fieldName === 'email' || fieldName === 'phone') {
+    if (fieldName === 'email') {
       return '';
     }
 
@@ -183,9 +220,10 @@ export class EditProfileModal implements OnInit {
     if (field?.errors && field.touched) {
       if (field.errors['required']) return `${this.capitalizeFirstLetter(fieldName)} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
+      if (field.errors['pattern'] && fieldName === 'phone')
+        return 'Enter a valid phone number (digits and dashes only)';
       if (field.errors['invalidUrl']) return 'Enter a valid website url';
       if (field.errors['invalidDate']) return 'Please enter a valid date of birth';
-      if (field.errors['tooYoung']) return 'You must be at least 13 years old';
       if (field.errors['minlength'])
         return `${this.capitalizeFirstLetter(fieldName)} must be at least ${
           field.errors['minlength'].requiredLength

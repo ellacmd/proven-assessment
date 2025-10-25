@@ -21,7 +21,7 @@
               (change)="onFileSelected($event)"
               style="display: none"
             />
-            <label for="avatar-upload" class="upload-button">
+            <label for="avatar-upload" class="primary-button">
               <mat-icon>cloud_upload</mat-icon>
               Upload Profile Picture
             </label>
@@ -74,16 +74,35 @@
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Phone</mat-label>
-              <span matPrefix class="phone-prefix">🇺🇸 +1</span>
-              <input matInput type="tel" formControlName="phone" placeholder="000-000-000" />
-              @if (getFieldError('phone')) {
-              <mat-error>
-                {{ getFieldError('phone') }}
-              </mat-error>
-              }
-            </mat-form-field>
+            <div class="phone-row">
+              <mat-form-field appearance="outline" class="phone-code">
+                <mat-label>Code</mat-label>
+                <mat-select
+                  [value]="registrationForm.get('phoneDialCode')?.value"
+                  (selectionChange)="onPhoneCodeSelected($event.value)"
+                >
+                  @for (c of countriesWithDial; track c.dialCode + c.name) {
+                  <mat-option [value]="c.dialCode">
+                    <div class="country-option">
+                      @if (c.flag) { <img [src]="c.flag" alt="flag" class="flag-icon" /> }
+                      <span class="country-name">{{ c.name }}</span>
+                      @if (c.dialCode) { <span class="country-dial">{{ c.dialCode }}</span> }
+                    </div>
+                  </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="phone-number">
+                <mat-label>Phone</mat-label>
+                <input matInput type="tel" formControlName="phone" placeholder="344-334-874" />
+                @if (getFieldError('phone')) {
+                <mat-error>
+                  {{ getFieldError('phone') }}
+                </mat-error>
+                }
+              </mat-form-field>
+            </div>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Birth Date </mat-label>
@@ -91,6 +110,7 @@
                 matInput
                 [matDatepicker]="picker"
                 formControlName="birthDate"
+                [max]="maxDate"
                 placeholder="MM/DD/YYYY"
               />
               <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -110,10 +130,18 @@
                 [matAutocomplete]="countryAuto"
                 placeholder="Select your country"
               />
-              <mat-autocomplete #countryAuto="matAutocomplete">
-                @for (country of filteredCountries; track country) {
-                <mat-option [value]="country">
-                  {{ country }}
+              <mat-autocomplete
+                #countryAuto="matAutocomplete"
+                (optionSelected)="onCountrySelected($event.option.value)"
+              >
+                @for (country of filteredCountries; track country.name + country.cca2) {
+                <mat-option [value]="country.name">
+                  <div class="country-option">
+                    @if (country.flag) { <img [src]="country.flag" alt="flag" class="flag-icon" /> }
+                    <span class="country-name">{{ country.name }}</span>
+                    @if (country.dialCode) {
+                    <span class="country-dial">{{ country.dialCode }}</span> }
+                  </div>
                 </mat-option>
                 }
               </mat-autocomplete>
@@ -133,10 +161,10 @@
                 placeholder="www.websitename.com"
               />
               @if (getFieldError('website')) {
-                <mat-error>
-                  {{ getFieldError('website') }}
-                </mat-error>
-                }
+              <mat-error>
+                {{ getFieldError('website') }}
+              </mat-error>
+              }
             </mat-form-field>
 
             @if (errorMessage()) {
@@ -146,7 +174,11 @@
             }
 
             <div class="step-actions">
-              <button class="next-btn" (click)="onSave(stepper)" [disabled]="isLoading() || !registrationForm.valid">
+              <button
+                class="primary-button"
+                (click)="onSave(stepper)"
+                [disabled]="isLoading() || !registrationForm.valid"
+              >
                 @if (isLoading()) {
                 <mat-spinner diameter="20"></mat-spinner>
                 } @else {
@@ -221,7 +253,7 @@
 
             <div class="step-actions">
               <button
-                class="next-btn"
+                class="primary-button"
                 (click)="onVerify()"
                 [disabled]="!verificationForm.valid || isLoading()"
               >

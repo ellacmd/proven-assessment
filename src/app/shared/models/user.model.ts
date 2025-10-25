@@ -37,3 +37,37 @@ export type EditableUserProfile = Pick<
   User,
   'username' | 'birth_date' | 'country' | 'website' | 'avatar_url'
 >;
+
+export interface CountryInfo {
+  name: string;
+  flag: string;
+  dialCode: string;
+  cca2: string;
+}
+
+export interface CountryApiResponse {
+  name: {
+    common: string;
+  };
+  flags: {
+    svg?: string;
+    png?: string;
+  };
+  idd: {
+    root?: string;
+    suffixes?: string[];
+  };
+  cca2: string;
+}
+
+export interface SupabaseFile {
+  name: string;
+}
+
+export interface AuthUserMetadata {
+  username?: string;
+  phone?: string;
+  birth_date?: string;
+  country?: string;
+  website?: string;
+}

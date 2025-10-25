@@ -22,21 +22,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { countries } from '../../core/utils/constants';
 import { AuthService } from '../../core/services/auth.service';
-import { SignUpData } from '../../shared/models/user.model';
+import { SignUpData, CountryInfo, CountryApiResponse } from '../../shared/models/user.model';
 import { UserService } from '../../core/services/user.service';
-import {
-  birthDateValidator,
-  websiteUrlValidator,
-  phoneNumberValidator,
-} from '../../core/utils/validators';
+import { birthDateValidator, websiteUrlValidator } from '../../core/utils/validators';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { MatStepper } from '@angular/material/stepper';
 
 @Component({
   selector: 'app-sign-up',
   imports: [
     ReactiveFormsModule,
     CommonModule,
+    HttpClientModule,
     MatStepperModule,
     MatFormFieldModule,
     MatInputModule,
@@ -56,6 +54,7 @@ export class SignUp implements OnInit {
   @ViewChildren('digitInput') digitInputs!: QueryList<ElementRef>;
 
   private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private router = inject(Router);
@@ -66,14 +65,23 @@ export class SignUp implements OnInit {
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   timer = signal(120);
-  filteredCountries: string[] = [];
+  countries: CountryInfo[] = [];
+  filteredCountries: CountryInfo[] = [];
+  selectedCountry: CountryInfo | null = null;
+  selectedPhoneCountry: CountryInfo | null = null;
   isLoading = signal(false);
   errorMessage = signal('');
   currentStep = signal(0);
+  today: Date = new Date();
+
+  get maxDate(): Date {
+    return new Date();
+  }
 
   ngOnInit() {
     this.initializeForms();
     this.setupCountryFiltering();
+    this.loadCountries();
   }
 
   initializeForms() {
@@ -81,9 +89,10 @@ export class SignUp implements OnInit {
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      birthDate: ['', [Validators.required, birthDateValidator(13)]],
+      birthDate: ['', [Validators.required, birthDateValidator()]],
       country: ['', Validators.required],
-      phone: ['', [Validators.required, phoneNumberValidator(10, 15)]],
+      phoneDialCode: [''],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9-]+$/)]],
       website: ['', websiteUrlValidator()],
     });
 
@@ -100,15 +109,69 @@ export class SignUp implements OnInit {
   setupCountryFiltering() {
     this.registrationForm.get('country')?.valueChanges.subscribe((value) => {
       if (value && typeof value === 'string') {
-        this.filteredCountries = countries.filter((country) =>
-          country.toLowerCase().includes(value.toLowerCase())
-        );
+        const lower = value.toLowerCase();
+        this.filteredCountries = this.countries.filter((c) => c.name.toLowerCase().includes(lower));
       } else {
-        this.filteredCountries = [...countries];
+        this.filteredCountries = [...this.countries];
       }
     });
 
-    this.filteredCountries = [...countries];
+    this.filteredCountries = [...this.countries];
+  }
+
+  loadCountries() {
+    this.http
+      .get<CountryApiResponse[]>('https://restcountries.com/v3.1/all?fields=name,flags,idd,cca2')
+      .subscribe({
+        next: (res) => {
+          const mapped: CountryInfo[] = res
+            .map((c) => {
+              const root: string | undefined = c?.idd?.root;
+              const suffixes: string[] | undefined = c?.idd?.suffixes;
+              const dial = root
+                ? `${root}${Array.isArray(suffixes) && suffixes.length ? suffixes[0] : ''}`
+                : '';
+              return {
+                name: c?.name?.common ?? '',
+                flag: c?.flags?.svg ?? c?.flags?.png ?? '',
+                dialCode: dial,
+                cca2: c?.cca2 ?? '',
+              } as CountryInfo;
+            })
+            .filter((c: CountryInfo) => !!c.name);
+
+          mapped.sort((a, b) => a.name.localeCompare(b.name));
+          this.countries = mapped;
+          this.filteredCountries = [...this.countries];
+
+          const defaultCountry = this.countries.find((c) => c.name === 'United States');
+          if (defaultCountry) {
+            this.selectedCountry = defaultCountry;
+            this.selectedPhoneCountry = defaultCountry;
+            this.registrationForm.get('phoneDialCode')?.setValue(defaultCountry.dialCode);
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.countries = [];
+          this.filteredCountries = [];
+        },
+      });
+  }
+
+  onCountrySelected(countryName: string) {
+    const found = this.countries.find((c) => c.name === countryName) || null;
+    this.selectedCountry = found;
+  }
+
+  onPhoneCodeSelected(dialCode: string) {
+    const found = this.countries.find((c) => c.dialCode === dialCode) || null;
+    this.selectedPhoneCountry = found;
+    this.registrationForm.get('phoneDialCode')?.setValue(dialCode || '');
+  }
+
+  get countriesWithDial(): CountryInfo[] {
+    return this.countries.filter((c) => !!c.dialCode);
   }
 
   onFileSelected(event: Event) {
@@ -121,34 +184,33 @@ export class SignUp implements OnInit {
       }
       this.selectedFile = file;
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewUrl = e.target.result;
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.previewUrl = e.target?.result as string;
         this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
   }
 
-  async onSave(stepper: any) {
+  async onSave(stepper: MatStepper) {
     if (!this.registrationForm.valid) return;
+
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {
       const formData = this.registrationForm.value;
-
       const signUpData: SignUpData = {
         email: formData.email,
         password: formData.password,
         username: formData.username,
-        phone: formData.phone,
+        phone: `${formData.phoneDialCode || ''}${formData.phone || ''}`.trim(),
         birth_date: formData.birthDate,
         country: formData.country,
         website: formData.website,
         avatar: this.selectedFile || undefined,
       };
       const result = await this.authService.signUp(signUpData);
-
       if (result.success) {
         this.isLoading.set(false);
         stepper.next();
@@ -168,8 +230,14 @@ export class SignUp implements OnInit {
       } else {
         this.errorMessage.set(result.error || 'Sign up failed');
       }
-    } catch (error: any) {
-      this.errorMessage.set(error?.error || error?.message || 'Sign up failed');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : error && typeof error === 'object' && 'error' in error
+          ? (error as { error: string }).error
+          : 'Sign up failed';
+      this.errorMessage.set(errorMessage);
     } finally {
       this.isLoading.set(false);
     }
@@ -223,10 +291,11 @@ export class SignUp implements OnInit {
     if (field?.errors && field.touched) {
       if (field.errors['required']) return `${this.capitalizeFirstLetter(fieldName)} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
-      if (field.errors['invalidPhone']) return 'Enter a valid phone number';
+      if (field.errors['pattern'] && fieldName === 'phone')
+        return 'Enter a valid phone number (digits and dashes only)';
       if (field.errors['invalidUrl']) return 'Enter a valid website url';
       if (field.errors['invalidDate']) return 'Please enter a valid date of birth';
-      if (field.errors['tooYoung']) return 'You must be at least 13 years old';
+      if (field.errors['futureDate']) return 'Birth date cannot be in the future';
       if (field.errors['minlength'])
         return `${this.capitalizeFirstLetter(fieldName)} must be at least 3 characters`;
     }
@@ -237,11 +306,12 @@ export class SignUp implements OnInit {
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
-  onDigitInput(event: any, currentIndex: number): void {
-    const value = event.target.value;
+  onDigitInput(event: Event, currentIndex: number): void {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
 
     if (!/^\d$/.test(value) && value !== '') {
-      event.target.value = '';
+      target.value = '';
       return;
     }
 

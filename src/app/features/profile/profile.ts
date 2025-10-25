@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EditProfileModal } from './edit-profile-modal/edit-profile-modal';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
@@ -21,6 +21,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
 
   isLoading = signal(false);
@@ -34,6 +35,12 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       if (params['edit']) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true,
+        });
+
         setTimeout(() => {
           this.onEditProfile();
         }, 100);
@@ -91,6 +98,7 @@ export class ProfilePage implements OnInit, OnDestroy {
       width: '600px',
       maxWidth: '90vw',
       maxHeight: '90vh',
+      panelClass: 'no-radius-dialog',
       data: profile,
       disableClose: false,
       autoFocus: true,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { EditableUserProfile } from '../../shared/models/user.model';
+import { EditableUserProfile, SupabaseFile } from '../../shared/models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -73,7 +73,7 @@ export class UserService {
         .list(userId);
 
       if (!listError && files && files.length > 0) {
-        const paths = files.map((f: any) => `${userId}/${f.name}`);
+        const paths = files.map((f: SupabaseFile) => `${userId}/${f.name}`);
         await this.supabaseService.client.storage.from('avatars').remove(paths);
       }
 

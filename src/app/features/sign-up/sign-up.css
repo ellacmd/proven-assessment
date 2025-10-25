@@ -78,38 +78,8 @@
 }
 
 
-.upload-button,
-.next-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    border: none;
-    text-decoration: none;
-}
 
-.upload-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
 
-.upload-button mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-}
-
-.next-btn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-
-}
 
 .upload-instructions {
     text-align: center;
@@ -140,6 +110,47 @@
 
 .phone-prefix {
     padding: 0 2px 0 14px;
+}
+
+.flag-icon {
+    width: 18px;
+    height: 12px;
+    object-fit: cover;
+    margin-right: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.dial-code {
+    margin-right: 6px;
+    color: #495057;
+}
+
+.country-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.country-name {
+    flex: 1;
+}
+
+.country-dial {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.phone-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.phone-code {
+    width: 40%;
+}
+
+.phone-number {
+    flex: 1;
 }
 
 .verification-code-container {

@@ -66,24 +66,7 @@
     transition: all 0.3s ease;
 }
 
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-    border: none;
-}
 
-.btn-primary:hover:not(:disabled) {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-.btn-primary:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
 
 .btn-secondary {
     background-color: transparent;
@@ -101,6 +84,7 @@
 
 .signin-btn {
     margin: 1rem auto 0 auto;
+    width: 88%;
 }
 
 .signin-btn mat-icon {
@@ -148,8 +132,7 @@
 .signup-btn:hover {
     background-color: #007bff;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+   
 }
 
 .signup-btn mat-icon {

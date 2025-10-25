@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
-import { User, SignUpData } from '../../shared/models/user.model';
+import { User, SignUpData, AuthUserMetadata } from '../../shared/models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -125,64 +125,90 @@ export class AuthService {
 
   private async loadUserProfile(userId: string): Promise<void> {
     try {
-      const { data: profiles, error } = await this.supabaseService.client
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      const profile = profiles?.[0];
-
-      if (profile) {
-        const user: User = {
-          id: userId,
-          email: profile.email,
-          username: profile.username,
-          phone: profile.phone,
-          birth_date: profile.birth_date,
-          country: profile.country,
-          website: profile.website,
-          avatar_url: profile.avatar_url,
-          created_at: profile.created_at,
-          updated_at: profile.updated_at,
-        };
+      const user = await this.getUserProfile(userId);
+      if (user) {
         this.setUser(user);
-      } else {
-        const { data: userResp } = await this.supabaseService.client.auth.getUser();
-        const authUser = userResp?.user;
-        if (authUser) {
-          const meta: Record<string, unknown> = (authUser as any).user_metadata || {};
-          const fallbackUser: User = {
-            id: authUser.id,
-            email: authUser.email || '',
-            username: (meta['username'] as string) || authUser.email || 'User',
-            phone: (meta['phone'] as string) || undefined,
-            birth_date: (meta['birth_date'] as string) || undefined,
-            country: (meta['country'] as string) || undefined,
-            website: (meta['website'] as string) || undefined,
-            avatar_url: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-          this.setUser(fallbackUser);
+        return;
+      }
 
-          try {
-            await this.createUserProfile(authUser.id, {
-              email: fallbackUser.email,
-              password: '',
-              username: fallbackUser.username,
-              phone: fallbackUser.phone,
-              birth_date: fallbackUser.birth_date,
-              country: fallbackUser.country,
-              website: fallbackUser.website,
-              avatar: undefined,
-            });
-          } catch {}
-        }
+      const fallbackUser = await this.createFallbackUser(userId);
+      if (fallbackUser) {
+        this.setUser(fallbackUser);
+        await this.createUserProfileFromFallback(userId, fallbackUser);
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
+      throw error;
+    }
+  }
+
+  private async getUserProfile(userId: string): Promise<User | null> {
+    const { data: profiles, error } = await this.supabaseService.client
+      .from('user_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // No rows found
+      throw error;
+    }
+
+    return this.mapProfileToUser(profiles, userId);
+  }
+
+  private async createFallbackUser(userId: string): Promise<User | null> {
+    const { data: userResp } = await this.supabaseService.client.auth.getUser();
+    const authUser = userResp?.user;
+
+    if (!authUser) return null;
+
+    const meta: AuthUserMetadata =
+      (authUser as { user_metadata?: AuthUserMetadata }).user_metadata || {};
+
+    return {
+      id: userId,
+      email: authUser.email || '',
+      username: meta.username || authUser.email || 'User',
+      phone: meta.phone,
+      birth_date: meta.birth_date,
+      country: meta.country,
+      website: meta.website,
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  private mapProfileToUser(profile: any, userId: string): User {
+    return {
+      id: userId,
+      email: profile.email,
+      username: profile.username,
+      phone: profile.phone,
+      birth_date: profile.birth_date,
+      country: profile.country,
+      website: profile.website,
+      avatar_url: profile.avatar_url,
+      created_at: profile.created_at,
+      updated_at: profile.updated_at,
+    };
+  }
+
+  private async createUserProfileFromFallback(userId: string, user: User): Promise<void> {
+    try {
+      await this.createUserProfile(userId, {
+        email: user.email,
+        password: '',
+        username: user.username,
+        phone: user.phone,
+        birth_date: user.birth_date,
+        country: user.country,
+        website: user.website,
+        avatar: undefined,
+      });
+    } catch (error) {
+      console.error('Failed to create user profile:', error);
     }
   }
 

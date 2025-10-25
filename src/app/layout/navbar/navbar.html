@@ -7,9 +7,8 @@
 
     @if (!isAuthenticated() || !isOnProfileRoute()) {
     <li>
-      <button class="nav-button" (click)="onSignInClick()">Sign In</button>
+      <button class="primary-button signin-button" (click)="onSignInClick()">Sign In</button>
     </li>
-    <li><button class="nav-button" (click)="onRegistrationClick()">Registration</button></li>
     } @else {
     <li class="user-profile">
       <button [matMenuTriggerFor]="userMenu" class="user-menu-trigger">
@@ -42,11 +41,11 @@
         </button>
       </mat-menu>
     </li>
-    }
-
+    } @if (isAuthenticated() && isOnProfileRoute()) {
     <li>
       <mat-icon aria-hidden="false" aria-label="Search icon" fontIcon="search"></mat-icon>
     </li>
+    }
   </ul>
 
   <button class="hamburger-btn" (click)="toggleDrawer()" aria-label="Toggle navigation menu">
@@ -61,12 +60,8 @@
     <a mat-list-item (click)="toggleDrawer()">Pricing</a>
 
     @if (!isAuthenticated() || !isOnProfileRoute()) {
-    <a mat-list-item (click)="onSignInClick(); toggleDrawer()">
-    Sign In
-    </a>
-    <a mat-list-item (click)="onRegistrationClick(); toggleDrawer()">
-      Registration
-    </a>
+    <a mat-list-item (click)="onSignInClick(); toggleDrawer()"> Sign In </a>
+    <a mat-list-item (click)="onRegistrationClick(); toggleDrawer()"> Registration </a>
     } @else {
     <div class="mobile-user-profile">
       <div class="mobile-user-info">
@@ -100,11 +95,11 @@
       <mat-icon fontIcon="logout"></mat-icon>
       <span>Logout</span>
     </a>
-    }
-
+    } @if (isAuthenticated() && isOnProfileRoute()) {
     <div (click)="toggleDrawer()" class="search-item">
       <mat-icon aria-hidden="false" aria-label="Search icon" fontIcon="search"></mat-icon>
       <span>Search</span>
     </div>
+    }
   </mat-nav-list>
 </div>

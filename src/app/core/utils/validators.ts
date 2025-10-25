@@ -23,7 +23,7 @@ export function websiteUrlValidator(): ValidatorFn {
   };
 }
 
-export function birthDateValidator(minAgeYears: number = 13): ValidatorFn {
+export function birthDateValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
     if (value === null || value === undefined || value === '') {
@@ -43,16 +43,10 @@ export function birthDateValidator(minAgeYears: number = 13): ValidatorFn {
     }
 
     const today = new Date();
-    date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const normalized = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const now = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-    if (date > now) {
-      return { invalidDate: true };
-    }
-
-    const minBirthDate = new Date(now.getFullYear() - minAgeYears, now.getMonth(), now.getDate());
-    if (date > minBirthDate) {
-      return { tooYoung: true };
+    if (normalized > now) {
+      return { futureDate: true };
     }
 
     return null;
