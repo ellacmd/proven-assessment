@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { User } from '../../shared/models/user.model';
-import { Observable, from } from 'rxjs';
+import { EditableUserProfile } from '../../shared/models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -9,11 +8,9 @@ import { Observable, from } from 'rxjs';
 export class UserService {
   constructor(private supabaseService: SupabaseService) {}
 
-
-
   async updateUserProfile(
     userId: string,
-    profileData: Partial<User>
+    profileData: Partial<EditableUserProfile>
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const { data, error } = await this.supabaseService.client
@@ -57,9 +54,7 @@ export class UserService {
 
       const { data } = this.supabaseService.client.storage.from('avatars').getPublicUrl(filePath);
 
-      const updateResult = await this.updateUserProfile(userId, {
-        avatar_url: data.publicUrl,
-      });
+      const updateResult = await this.updateUserProfile(userId, { avatar_url: data.publicUrl });
 
       if (!updateResult.success) {
         return { success: false, error: updateResult.error };
@@ -82,9 +77,7 @@ export class UserService {
         await this.supabaseService.client.storage.from('avatars').remove(paths);
       }
 
-      const updateResult = await this.updateUserProfile(userId, {
-        avatar_url: null as unknown as any,
-      });
+      const updateResult = await this.updateUserProfile(userId, { avatar_url: null });
 
       if (!updateResult.success) {
         return { success: false, error: updateResult.error };
@@ -95,5 +88,4 @@ export class UserService {
       return { success: false, error: 'Failed to delete avatar' };
     }
   }
-
 }

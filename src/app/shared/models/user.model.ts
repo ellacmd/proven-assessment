@@ -6,11 +6,10 @@ export interface User {
   birth_date?: string;
   country?: string;
   website?: string;
-  avatar_url?: string;
+  avatar_url?: string | null;
   created_at: string;
   updated_at: string;
 }
-
 
 export interface SignUpData {
   email: string;
@@ -33,3 +32,8 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
 }
+
+export type EditableUserProfile = Pick<
+  User,
+  'username' | 'birth_date' | 'country' | 'website' | 'avatar_url'
+>;

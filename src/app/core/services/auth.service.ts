@@ -2,23 +2,17 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 import { User, SignUpData } from '../../shared/models/user.model';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly STORAGE_KEY = 'auth_user';
-  private userSubject = new BehaviorSubject<User | null>(null);
-  private isLoadingSubject = new BehaviorSubject<boolean>(false);
 
   private userSignal = signal<User | null>(this.getUserFromStorage());
 
   isAuthenticated = computed(() => !!this.userSignal());
   currentUser = computed(() => this.userSignal());
-
-  user$ = this.userSubject.asObservable();
-  isLoading$ = this.isLoadingSubject.asObservable();
 
   constructor(private supabaseService: SupabaseService, private router: Router) {
     this.initializeAuth();
@@ -68,7 +62,6 @@ export class AuthService {
 
   async signUp(signUpData: SignUpData): Promise<{ success: boolean; error?: string }> {
     try {
-
       const { data, error } = await this.supabaseService.client.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
@@ -118,7 +111,6 @@ export class AuthService {
 
   async verifyCode(email: string, code: string): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('Verifying code for:', email, 'Code:', code);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (code.length === 6 && /^\d{6}$/.test(code)) {
@@ -160,16 +152,16 @@ export class AuthService {
         const { data: userResp } = await this.supabaseService.client.auth.getUser();
         const authUser = userResp?.user;
         if (authUser) {
-          const meta: Record<string, any> = (authUser as any).user_metadata || {};
+          const meta: Record<string, unknown> = (authUser as any).user_metadata || {};
           const fallbackUser: User = {
             id: authUser.id,
             email: authUser.email || '',
-            username: meta['username'] || authUser.email || 'User',
-            phone: meta['phone'] || undefined,
-            birth_date: meta['birth_date'] || undefined,
-            country: meta['country'] || undefined,
-            website: meta['website'] || undefined,
-            avatar_url: undefined,
+            username: (meta['username'] as string) || authUser.email || 'User',
+            phone: (meta['phone'] as string) || undefined,
+            birth_date: (meta['birth_date'] as string) || undefined,
+            country: (meta['country'] as string) || undefined,
+            website: (meta['website'] as string) || undefined,
+            avatar_url: null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
@@ -237,13 +229,11 @@ export class AuthService {
 
   private setUser(user: User): void {
     this.userSignal.set(user);
-    this.userSubject.next(user);
     this.saveUserToStorage(user);
   }
 
   private clearUser(): void {
     this.userSignal.set(null);
-    this.userSubject.next(null);
     this.saveUserToStorage(null);
   }
 }

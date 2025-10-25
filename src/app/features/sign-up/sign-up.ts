@@ -5,7 +5,6 @@ import {
   QueryList,
   ElementRef,
   signal,
-  computed,
   inject,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -27,6 +26,11 @@ import { countries } from '../../core/utils/constants';
 import { AuthService } from '../../core/services/auth.service';
 import { SignUpData } from '../../shared/models/user.model';
 import { UserService } from '../../core/services/user.service';
+import {
+  birthDateValidator,
+  websiteUrlValidator,
+  phoneNumberValidator,
+} from '../../core/utils/validators';
 
 @Component({
   selector: 'app-sign-up',
@@ -61,8 +65,7 @@ export class SignUp implements OnInit {
   verificationForm!: FormGroup;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
-  timer = signal(0);
-  isResendDisabled = computed(() => this.timer() > 0);
+  timer = signal(120);
   filteredCountries: string[] = [];
   isLoading = signal(false);
   errorMessage = signal('');
@@ -78,10 +81,10 @@ export class SignUp implements OnInit {
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      birthDate: ['', Validators.required],
+      birthDate: ['', [Validators.required, birthDateValidator(13)]],
       country: ['', Validators.required],
-      phone: ['', Validators.required],
-      website: [''],
+      phone: ['', [Validators.required, phoneNumberValidator(10, 15)]],
+      website: ['', websiteUrlValidator()],
     });
 
     this.verificationForm = this.fb.group({
@@ -108,8 +111,9 @@ export class SignUp implements OnInit {
     this.filteredCountries = [...countries];
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       if (file.size > 1024 * 1024) {
         alert('File size must be less than 1MB');
@@ -219,6 +223,10 @@ export class SignUp implements OnInit {
     if (field?.errors && field.touched) {
       if (field.errors['required']) return `${this.capitalizeFirstLetter(fieldName)} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
+      if (field.errors['invalidPhone']) return 'Enter a valid phone number';
+      if (field.errors['invalidUrl']) return 'Enter a valid website url';
+      if (field.errors['invalidDate']) return 'Please enter a valid date of birth';
+      if (field.errors['tooYoung']) return 'You must be at least 13 years old';
       if (field.errors['minlength'])
         return `${this.capitalizeFirstLetter(fieldName)} must be at least 3 characters`;
     }

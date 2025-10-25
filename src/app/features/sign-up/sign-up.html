@@ -132,6 +132,11 @@
                 formControlName="website"
                 placeholder="www.websitename.com"
               />
+              @if (getFieldError('website')) {
+                <mat-error>
+                  {{ getFieldError('website') }}
+                </mat-error>
+                }
             </mat-form-field>
 
             @if (errorMessage()) {

@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { countries } from '../../../core/utils/constants';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/user.model';
+import { birthDateValidator, websiteUrlValidator } from '../../../core/utils/validators';
 
 @Component({
   selector: 'app-edit-profile-modal',
@@ -50,10 +51,7 @@ export class EditProfileModal implements OnInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EditProfileModal>,
     @Inject(MAT_DIALOG_DATA) public data: User
-  ) {
-    console.log('EditProfileModal constructor - data:', data);
-    console.log('Profile image from data:', data.avatar_url);
-  }
+  ) {}
 
   ngOnInit() {
     this.initializeForm();
@@ -67,8 +65,8 @@ export class EditProfileModal implements OnInit {
       email: [{ value: '', disabled: true }],
       phone: [{ value: '', disabled: true }],
       country: ['', Validators.required],
-      birthdate: ['', Validators.required],
-      website: [''],
+      birthdate: ['', [Validators.required, birthDateValidator(13)]],
+      website: ['', websiteUrlValidator()],
     });
   }
 
@@ -103,13 +101,14 @@ export class EditProfileModal implements OnInit {
     }
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       if (file.size > 1024 * 1024) {
         alert('File size must be less than 1MB');
 
-        event.target.value = '';
+        input.value = '';
         return;
       }
       this.selectedFile = file;
@@ -126,7 +125,6 @@ export class EditProfileModal implements OnInit {
   }
 
   onDeleteImage() {
-    console.log('Deleting image, current previewUrl:', this.previewUrl);
     this.previewUrl = null;
     this.selectedFile = null;
     this.avatarRemoved = true;
@@ -135,7 +133,6 @@ export class EditProfileModal implements OnInit {
     if (fileInput) {
       fileInput.value = '';
     }
-    console.log('After deletion, previewUrl:', this.previewUrl);
   }
 
   onSave() {
@@ -186,6 +183,9 @@ export class EditProfileModal implements OnInit {
     if (field?.errors && field.touched) {
       if (field.errors['required']) return `${this.capitalizeFirstLetter(fieldName)} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
+      if (field.errors['invalidUrl']) return 'Enter a valid website url';
+      if (field.errors['invalidDate']) return 'Please enter a valid date of birth';
+      if (field.errors['tooYoung']) return 'You must be at least 13 years old';
       if (field.errors['minlength'])
         return `${this.capitalizeFirstLetter(fieldName)} must be at least ${
           field.errors['minlength'].requiredLength

@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EditProfileModal } from './edit-profile-modal/edit-profile-modal';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
-import { User } from '../../shared/models/user.model';
+import { EditableUserProfile } from '../../shared/models/user.model';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -103,7 +103,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   private async handleProfileUpdate(result: {
-    updatedProfile: Partial<User>;
+    updatedProfile: Partial<EditableUserProfile>;
     avatarFile?: File | null;
     avatarRemoved?: boolean;
   }) {
@@ -128,8 +128,8 @@ export class ProfilePage implements OnInit, OnDestroy {
         }
       }
 
-      const { username, country, birth_date, website, phone, email } = result.updatedProfile;
-      const hasNonAvatarChanges = [username, country, birth_date, website, phone, email].some(
+      const { username, country, birth_date, website } = result.updatedProfile;
+      const hasNonAvatarChanges = [username, country, birth_date, website].some(
         (v) => v !== undefined
       );
       if (hasNonAvatarChanges) {

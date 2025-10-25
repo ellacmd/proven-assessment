@@ -32,10 +32,8 @@ export class Navbar implements OnInit, OnDestroy {
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
   currentUser = computed(() => this.authService.currentUser());
-  isLoading = computed(() => this.authService.isLoading$);
 
   ngOnInit() {
-    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(() => {});
     this.authService.refreshUserProfile();
 
     this.isOnProfileRoute.set(this.router.url.startsWith('/profile'));
@@ -75,12 +73,10 @@ export class Navbar implements OnInit, OnDestroy {
 
   async onLogoutClick() {
     try {
-      console.log('Logging out user...');
       if (this.drawerOpened()) {
         this.drawerOpened.set(false);
       }
       await this.authService.signOut();
-      console.log('User logged out successfully');
     } catch (error) {
       this.router.navigate(['/']);
     }
