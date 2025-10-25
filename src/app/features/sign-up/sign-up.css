@@ -383,6 +383,12 @@
         gap: 2rem;
     }
 
+    .avatar-section {
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 2rem;
+    }
+
     .avatar-preview {
         width: 150px;
         height: 150px;
