@@ -1,10 +1,13 @@
 <div class="signin-container">
-  <div class="signin-card">
-    <div class="signin-header">
-      <img src="/logo.svg" alt="TechRise Logo" class="logo" />
-      <h1>Welcome Back</h1>
-      <p class="signin-subtitle">Sign in to your account to continue</p>
-    </div>
+  <div class="signin-background"></div>
+
+  <div class="signin-content">
+    <div class="signin-card">
+      <div class="signin-header">
+        <img src="/logo.svg" alt="TechRise Logo" class="logo" />
+        <h1>Welcome Back</h1>
+        <p class="signin-subtitle">Sign in to your account to continue</p>
+      </div>
 
     <div class="signin-form">
       <form [formGroup]="signInForm" (ngSubmit)="onSignIn()">

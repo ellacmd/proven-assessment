@@ -1,13 +1,51 @@
 .signup-container {
     min-height: 100vh;
-    background-color: #f8f9fa;
-    padding: 2rem 0;
+    position: relative;
+    background-color: #f5f5f5;
+}
+
+.signup-background {
+    background-image: url('/profile-background.svg');
+    background-position: center;
+    background-size: cover;
+    width: 100%;
+    min-height: 300px;
+    position: relative;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-header {
+    text-align: center;
+    color: white;
+}
+
+.signup-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.signup-header p {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.signup-content {
+    display: flex;
+    gap: 2rem;
+    margin: -150px auto 0;
+    padding: 0 100px;
+    position: relative;
+    z-index: 1;
 }
 
 
 .custom-stepper {
-    max-width: 1200px;
-    margin: 0 auto;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -95,6 +133,7 @@
 .upload-instructions strong {
     color: #495057;
 }
+
 
 
 .form-section {
@@ -225,7 +264,6 @@
     gap: 1rem;
     margin-top: 2rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
 }
 
 
@@ -317,17 +355,32 @@
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 1156px) {
+    .signup-content {
+        padding: 40px;
+    }
+}
+
+@media (max-width: 1038px) {
+    .signup-background {
+        height: 411px;
+    }
+
+    .signup-content {
+        flex-direction: column;
+        margin-top: -122px;
+        padding: 0 1rem 2rem;
+    }
+
+    .form-section {
+        padding-top: 20px;
+        position: relative;
+    }
+
+
     .form-container {
         flex-direction: column;
         gap: 2rem;
-    }
-
-    .avatar-section {
-        flex: none;
-        border-right: none;
-        border-bottom: 1px solid #e9ecef;
-        padding-bottom: 2rem;
     }
 
     .avatar-preview {
@@ -342,6 +395,10 @@
     .verification-container {
         padding: 1rem;
     }
+}
+
+.signup-container {
+    padding-bottom: 4rem;
 }
 
 @media (max-width: 480px) {

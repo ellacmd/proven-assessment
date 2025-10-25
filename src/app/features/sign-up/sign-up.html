@@ -1,275 +1,280 @@
 <div class="signup-container">
-  <mat-stepper #stepper class="custom-stepper" linear="true">
-    <mat-step [stepControl]="registrationForm" label="Registration" [editable]="false">
-      <div class="form-container">
-        <div class="avatar-section">
-          <h3>Profile picture</h3>
-          <div class="avatar-container">
-            <div class="avatar-preview" [class.has-image]="previewUrl">
-              @if (previewUrl) {
-              <img [src]="previewUrl" alt="Profile preview" />
-              } @if (!previewUrl) {
-              <div class="avatar-placeholder">
-                <mat-icon>person</mat-icon>
+  <div class="signup-background"></div>
+
+  <div class="signup-content">
+    <mat-stepper #stepper class="custom-stepper" linear="true">
+      <mat-step [stepControl]="registrationForm" label="Registration" [editable]="false">
+        <div class="form-container">
+          <div class="avatar-section">
+            <h3>Profile picture</h3>
+            <div class="avatar-container">
+              <div class="avatar-preview" [class.has-image]="previewUrl">
+                @if (previewUrl) {
+                <img [src]="previewUrl" alt="Profile preview" />
+                } @if (!previewUrl) {
+                <div class="avatar-placeholder">
+                  <mat-icon>person</mat-icon>
+                </div>
+                }
               </div>
-              }
-            </div>
-            <input
-              type="file"
-              id="avatar-upload"
-              accept="image/*"
-              (change)="onFileSelected($event)"
-              style="display: none"
-            />
-            <label for="avatar-upload" class="primary-button">
-              <mat-icon>cloud_upload</mat-icon>
-              Upload Profile Picture
-            </label>
-            <div class="upload-instructions">
-              <p>Upload a new avatar. Large image will be resized automatically.</p>
-              <p>Maximum upload size is <strong>1 MB</strong></p>
+              <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                style="display: none"
+              />
+              <label for="avatar-upload" class="primary-button">
+                <mat-icon>cloud_upload</mat-icon>
+                Upload Profile Picture
+              </label>
+              <div class="upload-instructions">
+                <p>Upload a new avatar. Large image will be resized automatically.</p>
+                <p>Maximum upload size is <strong>1 MB</strong></p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-section">
-          <form [formGroup]="registrationForm">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Username </mat-label>
-              <input matInput formControlName="username" placeholder="JohnDoe" />
-              @if (getFieldError('username')) {
-              <mat-error>
-                {{ getFieldError('username') }}
-              </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email </mat-label>
-              <input
-                matInput
-                type="email"
-                formControlName="email"
-                placeholder="johndoe@gmail.com"
-              />
-              @if (getFieldError('email')) {
-              <mat-error>
-                {{ getFieldError('email') }}
-              </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
-              <input
-                matInput
-                type="password"
-                formControlName="password"
-                placeholder="Enter your password"
-              />
-              @if (getFieldError('password')) {
-              <mat-error>
-                {{ getFieldError('password') }}
-              </mat-error>
-              }
-            </mat-form-field>
-
-            <div class="phone-row">
-              <mat-form-field appearance="outline" class="phone-code">
-                <mat-label>Code</mat-label>
-                <mat-select
-                  [value]="registrationForm.get('phoneDialCode')?.value"
-                  (selectionChange)="onPhoneCodeSelected($event.value)"
-                >
-                  @for (c of countriesWithDial; track c.dialCode + c.name) {
-                  <mat-option [value]="c.dialCode">
-                    <div class="country-option">
-                      @if (c.flag) { <img [src]="c.flag" alt="flag" class="flag-icon" /> }
-                      <span class="country-name">{{ c.name }}</span>
-                      @if (c.dialCode) { <span class="country-dial">{{ c.dialCode }}</span> }
-                    </div>
-                  </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="phone-number">
-                <mat-label>Phone</mat-label>
-                <input matInput type="tel" formControlName="phone" placeholder="344-334-874" />
-                @if (getFieldError('phone')) {
+          <div class="form-section">
+            <form [formGroup]="registrationForm">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Username </mat-label>
+                <input matInput formControlName="username" placeholder="JohnDoe" />
+                @if (getFieldError('username')) {
                 <mat-error>
-                  {{ getFieldError('phone') }}
+                  {{ getFieldError('username') }}
                 </mat-error>
                 }
               </mat-form-field>
-            </div>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Birth Date </mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                formControlName="birthDate"
-                [max]="maxDate"
-                placeholder="MM/DD/YYYY"
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              @if (getFieldError('birthDate')) {
-              <mat-error>
-                {{ getFieldError('birthDate') }}
-              </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Country </mat-label>
-              <input
-                matInput
-                formControlName="country"
-                [matAutocomplete]="countryAuto"
-                placeholder="Select your country"
-              />
-              <mat-autocomplete
-                #countryAuto="matAutocomplete"
-                (optionSelected)="onCountrySelected($event.option.value)"
-              >
-                @for (country of filteredCountries; track country.name + country.cca2) {
-                <mat-option [value]="country.name">
-                  <div class="country-option">
-                    @if (country.flag) { <img [src]="country.flag" alt="flag" class="flag-icon" /> }
-                    <span class="country-name">{{ country.name }}</span>
-                    @if (country.dialCode) {
-                    <span class="country-dial">{{ country.dialCode }}</span> }
-                  </div>
-                </mat-option>
-                }
-              </mat-autocomplete>
-              @if (getFieldError('country')) {
-              <mat-error>
-                {{ getFieldError('country') }}
-              </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Website</mat-label>
-              <input
-                matInput
-                type="url"
-                formControlName="website"
-                placeholder="www.websitename.com"
-              />
-              @if (getFieldError('website')) {
-              <mat-error>
-                {{ getFieldError('website') }}
-              </mat-error>
-              }
-            </mat-form-field>
-
-            @if (errorMessage()) {
-            <div class="error-message">
-              {{ errorMessage() }}
-            </div>
-            }
-
-            <div class="step-actions">
-              <button
-                class="primary-button"
-                (click)="onSave(stepper)"
-                [disabled]="isLoading() || !registrationForm.valid"
-              >
-                @if (isLoading()) {
-                <mat-spinner diameter="20"></mat-spinner>
-                } @else {
-                <ng-container>
-                  Next
-                  <mat-icon>arrow_forward</mat-icon>
-                </ng-container>
-                }
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </mat-step>
-
-    <mat-step [stepControl]="verificationForm" label="Verification">
-      <div class="verification-container">
-        <div class="verification-content">
-          <h2>Verify Your Account</h2>
-          <p class="verification-description">
-            We've sent a 6-digit verification code to your email address. Please enter the code
-            below to complete your registration.
-          </p>
-
-          <form [formGroup]="verificationForm">
-            <div class="verification-code-container">
-              <label class="verification-label">Verification Code</label>
-              <div class="digit-inputs">
-                @for (i of [0, 1, 2, 3, 4, 5]; track i; let idx = $index) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email </mat-label>
                 <input
-                  #digitInput
-                  maxlength="1"
-                  class="digit-input"
-                  type="text"
-                  inputmode="numeric"
-                  [formControlName]="'digit' + (idx + 1)"
-                  (input)="onDigitInput($event, idx + 1)"
-                  (keydown)="onDigitKeydown($event, idx + 1)"
-                  (paste)="onPaste($event)"
-                  placeholder="0"
+                  matInput
+                  type="email"
+                  formControlName="email"
+                  placeholder="johndoe@gmail.com"
                 />
+                @if (getFieldError('email')) {
+                <mat-error>
+                  {{ getFieldError('email') }}
+                </mat-error>
                 }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Password</mat-label>
+                <input
+                  matInput
+                  type="password"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                />
+                @if (getFieldError('password')) {
+                <mat-error>
+                  {{ getFieldError('password') }}
+                </mat-error>
+                }
+              </mat-form-field>
+
+              <div class="phone-row">
+                <mat-form-field appearance="outline" class="phone-code">
+                  <mat-label>Code</mat-label>
+                  <mat-select
+                    [value]="registrationForm.get('phoneDialCode')?.value"
+                    (selectionChange)="onPhoneCodeSelected($event.value)"
+                  >
+                    @for (c of countriesWithDial; track c.dialCode + c.name) {
+                    <mat-option [value]="c.dialCode">
+                      <div class="country-option">
+                        @if (c.flag) { <img [src]="c.flag" alt="flag" class="flag-icon" /> }
+                        <span class="country-name">{{ c.name }}</span>
+                        @if (c.dialCode) { <span class="country-dial">{{ c.dialCode }}</span> }
+                      </div>
+                    </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="phone-number">
+                  <mat-label>Phone</mat-label>
+                  <input matInput type="tel" formControlName="phone" placeholder="344-334-874" />
+                  @if (getFieldError('phone')) {
+                  <mat-error>
+                    {{ getFieldError('phone') }}
+                  </mat-error>
+                  }
+                </mat-form-field>
               </div>
-              @if (getVerificationError()) {
-              <div class="verification-error">
-                {{ getVerificationError() }}
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Birth Date </mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  formControlName="birthDate"
+                  [max]="maxDate"
+                  placeholder="MM/DD/YYYY"
+                />
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                @if (getFieldError('birthDate')) {
+                <mat-error>
+                  {{ getFieldError('birthDate') }}
+                </mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Country </mat-label>
+                <input
+                  matInput
+                  formControlName="country"
+                  [matAutocomplete]="countryAuto"
+                  placeholder="Select your country"
+                />
+                <mat-autocomplete
+                  #countryAuto="matAutocomplete"
+                  (optionSelected)="onCountrySelected($event.option.value)"
+                >
+                  @for (country of filteredCountries; track country.name + country.cca2) {
+                  <mat-option [value]="country.name">
+                    <div class="country-option">
+                      @if (country.flag) {
+                      <img [src]="country.flag" alt="flag" class="flag-icon" /> }
+                      <span class="country-name">{{ country.name }}</span>
+                      @if (country.dialCode) {
+                      <span class="country-dial">{{ country.dialCode }}</span> }
+                    </div>
+                  </mat-option>
+                  }
+                </mat-autocomplete>
+                @if (getFieldError('country')) {
+                <mat-error>
+                  {{ getFieldError('country') }}
+                </mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Website</mat-label>
+                <input
+                  matInput
+                  type="url"
+                  formControlName="website"
+                  placeholder="www.websitename.com"
+                />
+                @if (getFieldError('website')) {
+                <mat-error>
+                  {{ getFieldError('website') }}
+                </mat-error>
+                }
+              </mat-form-field>
+
+              @if (errorMessage()) {
+              <div class="error-message">
+                {{ errorMessage() }}
               </div>
               }
-            </div>
 
-            <div class="timer-section">
-              @if (timer() > 0) {
-              <div class="timer">
-                <mat-icon>timer</mat-icon>
-                You can request a new OTP in: {{ formatTime(timer()) }}
-              </div>
-              } @else {
-              <div class="resend-section">
-                <p class="resend-text">Didn't receive the code?</p>
-                <button mat-stroked-button color="primary" (click)="onResendCode()">
-                  Resend OTP
+              <div class="step-actions">
+                <button
+                  class="primary-button"
+                  (click)="onSave(stepper)"
+                  [disabled]="isLoading() || !registrationForm.valid"
+                >
+                  @if (isLoading()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                  <ng-container>
+                    Next
+                    <mat-icon>arrow_forward</mat-icon>
+                  </ng-container>
+                  }
                 </button>
               </div>
-              }
-            </div>
-
-            @if (errorMessage()) {
-            <div class="error-message">
-              {{ errorMessage() }}
-            </div>
-            }
-
-            <div class="step-actions">
-              <button
-                class="primary-button"
-                (click)="onVerify()"
-                [disabled]="!verificationForm.valid || isLoading()"
-              >
-                @if (isLoading()) {
-                <mat-spinner diameter="20"></mat-spinner>
-                } @else {
-                <ng-container>
-                  <mat-icon>check</mat-icon>
-                  Verify Account
-                </ng-container>
-                }
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
-    </mat-step>
-  </mat-stepper>
+      </mat-step>
+
+      <mat-step [stepControl]="verificationForm" label="Verification">
+        <div class="verification-container">
+          <div class="verification-content">
+            <h2>Verify Your Account</h2>
+            <p class="verification-description">
+              We've sent a 6-digit verification code to your email address. Please enter the code
+              below to complete your registration.
+            </p>
+
+            <form [formGroup]="verificationForm">
+              <div class="verification-code-container">
+                <label class="verification-label">Verification Code</label>
+                <div class="digit-inputs">
+                  @for (i of [0, 1, 2, 3, 4, 5]; track i; let idx = $index) {
+                  <input
+                    #digitInput
+                    maxlength="1"
+                    class="digit-input"
+                    type="text"
+                    inputmode="numeric"
+                    [formControlName]="'digit' + (idx + 1)"
+                    (input)="onDigitInput($event, idx + 1)"
+                    (keydown)="onDigitKeydown($event, idx + 1)"
+                    (paste)="onPaste($event)"
+                    placeholder="0"
+                  />
+                  }
+                </div>
+                @if (getVerificationError()) {
+                <div class="verification-error">
+                  {{ getVerificationError() }}
+                </div>
+                }
+              </div>
+
+              <div class="timer-section">
+                @if (timer() > 0) {
+                <div class="timer">
+                  <mat-icon>timer</mat-icon>
+                  You can request a new OTP in: {{ formatTime(timer()) }}
+                </div>
+                } @else {
+                <div class="resend-section">
+                  <p class="resend-text">Didn't receive the code?</p>
+                  <button mat-stroked-button color="primary" (click)="onResendCode()">
+                    Resend OTP
+                  </button>
+                </div>
+                }
+              </div>
+
+              @if (errorMessage()) {
+              <div class="error-message">
+                {{ errorMessage() }}
+              </div>
+              }
+
+              <div class="step-actions">
+                <button
+                  class="primary-button"
+                  (click)="onVerify()"
+                  [disabled]="!verificationForm.valid || isLoading()"
+                >
+                  @if (isLoading()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                  <ng-container>
+                    <mat-icon>check</mat-icon>
+                    Verify Account
+                  </ng-container>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </div>
 </div>
