@@ -1,317 +1,131 @@
-# TechRise User Profile App
+# TechRise - User Profile Management Application
 
-A modern Angular application for user registration, authentication, and profile management with Supabase integration.
+A modern Angular application for user registration, authentication, and profile management built with Supabase backend integration.
 
 ## Features
 
-### 🔐 Authentication & Registration
-
-- **User Registration**: Complete signup form with avatar upload, personal details, and country selection
-- **Email/Phone Verification**: Mocked verification system with 6-digit OTP codes
-- **Password Security**: Secure password handling with confirmation
-- **Supabase Integration**: Full authentication flow with Supabase Auth
-
-### 👤 User Profile Management
-
-- **Profile Display**: Beautiful profile page showing all user information
-- **Profile Editing**: Modal-based editing with restricted email/phone changes
-- **Avatar Management**: Upload, preview, and delete profile pictures
-- **Real-time Updates**: Reactive profile updates using Angular signals
-
-### 🎨 Modern UI/UX
-
-- **Responsive Design**: Mobile-first approach with desktop optimization
-- **Material Design**: Angular Material components for consistent UI
-- **Loading States**: Proper loading indicators and error handling
-- **Form Validation**: Comprehensive client-side validation
-
-### 🛡️ Security & Data Management
-
-- **Row Level Security**: Supabase RLS policies for data protection
-- **Authentication Guards**: Route protection for authenticated users
-- **File Upload Security**: Secure avatar upload with size limits
-- **Data Validation**: Server-side and client-side validation
+- **User Registration**: Multi-step registration form with country selection, phone validation, and avatar upload
+- **Email Verification**: Mock verification system with 6-digit code input
+- **User Authentication**: Secure sign-in/sign-out functionality
+- **Profile Management**: View and edit user profiles with avatar support
+- **Responsive Design**: Modern UI built with Angular Material components
 
 ## Tech Stack
 
-- **Frontend**: Angular 20+ with standalone components
-- **UI Library**: Angular Material
+- **Frontend**: Angular 20.3.0 with TypeScript
+- **UI Framework**: Angular Material 20.2.10
 - **Backend**: Supabase (PostgreSQL + Auth + Storage)
 - **State Management**: Angular Signals
-- **Styling**: CSS3 with responsive design
-- **Type Safety**: TypeScript with strict mode
+- **Form Handling**: Reactive Forms with custom validators
+- **File Upload**: Avatar image upload to Supabase Storage
 
 ## Project Structure
 
 ```
-src/
-├── app/
-│   ├── core/
-│   │   ├── guards/
-│   │   │   └── auth.guard.ts          # Route protection
-│   │   └── services/
-│   │       ├── auth.service.ts         # Authentication logic
-│   │       ├── user.service.ts         # User profile operations
-│   │       └── supabase.service.ts     # Supabase client
-│   ├── features/
-│   │   ├── sign-up/
-│   │   │   ├── sign-up.ts             # Registration component
-│   │   │   ├── sign-up.html           # Registration template
-│   │   │   └── sign-up.css            # Registration styles
-│   │   ├── verification/
-│   │   │   ├── verification.ts         # OTP verification
-│   │   │   ├── verification.html      # Verification template
-│   │   │   └── verification.css        # Verification styles
-│   │   └── profile/
-│   │       ├── profile.ts             # Profile display
-│   │       ├── profile.html           # Profile template
-│   │       ├── profile.css            # Profile styles
-│   │       └── edit-profile-modal/    # Profile editing modal
-│   ├── layout/
-│   │   └── navbar/                    # Navigation component
-│   ├── shared/
-│   │   └── models/
-│   │       └── user.model.ts          # TypeScript interfaces
-│   └── core/
-│       └── utils/
-│           └── constants.ts           # App constants
-├── environments/
-│   ├── environment.ts                 # Development config
-│   └── environment.prod.ts           # Production config
-└── styles.css                        # Global styles
+src/app/
+├── core/
+│   ├── guards/          # Route protection
+│   ├── services/        # Auth, Supabase, User services
+│   └── utils/           # Validators and constants
+├── features/
+│   ├── sign-up/         # Registration flow
+│   ├── sign-in/         # Authentication
+│   └── profile/         # Profile management
+├── layout/
+│   └── navbar/          # Navigation component
+└── shared/
+    ├── models/          # TypeScript interfaces
+    └── pipes/           # Custom pipes
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Angular CLI 20+
+- Node.js 18+
+- npm or yarn
 - Supabase account
 
 ### Installation
 
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd techrise
-   ```
-
-2. **Install dependencies**
+1. Clone the repository
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-3. **Set up Supabase**
+3. Set up Supabase:
 
-   - Follow the instructions in `SUPABASE_SETUP.md`
-   - Update environment variables with your Supabase credentials
+   - Create a new Supabase project
+   - Run the SQL schema from `supabase-schema.sql`
+   - Update environment variables in `src/environments/`
 
-4. **Start development server**
+4. Start the development server:
 
    ```bash
    npm start
    ```
 
-5. **Open your browser**
-   Navigate to `http://localhost:4200`
+5. Navigate to `http://localhost:4200`
 
-## Configuration
+## Key Components
 
-### Environment Variables
+### Authentication Flow
 
-Update the following files with your Supabase credentials:
-
-**src/environments/environment.ts**
-
-```typescript
-export const environment = {
-  production: false,
-  supabase: {
-    url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY',
-  },
-};
-```
-
-### Supabase Setup
-
-1. Create a new Supabase project
-2. Run the SQL schema from `supabase-schema.sql`
-3. Configure authentication settings
-4. Set up storage bucket for avatars
-
-See `SUPABASE_SETUP.md` for detailed instructions.
-
-## Usage
-
-### User Registration Flow
-
-1. **Registration Form**
-
-   - Fill out personal information
-   - Upload profile picture (optional)
-   - Select country from autocomplete
-   - Create secure password
-
-2. **Verification Step**
-
-   - Enter 6-digit verification code
-   - Resend code if needed (2-minute timer)
-   - Mocked verification system
-
-3. **Profile Access**
-   - Automatic redirect to profile page
-   - View all personal information
-   - Edit profile through modal
+- **SignUp**: Multi-step form with validation, country selection, and file upload
+- **SignIn**: Email/password authentication with error handling
+- **AuthGuard**: Protects profile routes from unauthenticated users
 
 ### Profile Management
 
-- **View Profile**: Complete user information display
-- **Edit Profile**: Modal-based editing (email/phone restricted)
-- **Avatar Management**: Upload, preview, delete profile pictures
-- **Real-time Updates**: Changes reflect immediately
-
-### Navigation
-
-- **Unauthenticated**: Logo, About Us, Pricing, Sign In
-- **Authenticated**: Logo, About Us, Pricing, User Menu
-- **Mobile**: Hamburger menu with responsive navigation
-
-## API Integration
-
-### Supabase Services
-
-- **Authentication**: User signup, signin, signout
-- **User Profiles**: CRUD operations for profile data
-- **File Storage**: Avatar upload and management
-- **Real-time**: Auth state changes and profile updates
+- **Profile View**: Displays user information with avatar support
+- **Edit Profile**: Modal-based editing with real-time updates
+- **Avatar Upload**: File upload to Supabase Storage with validation
 
 ### Data Models
 
-```typescript
-interface User {
-  id: string;
-  email: string;
-  username: string;
-  phone?: string;
-  birth_date?: string;
-  country?: string;
-  website?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
-}
-```
+- **User**: Complete user profile with metadata
+- **SignUpData**: Registration form data structure
+- **CountryInfo**: Country selection with flags and dial codes
+
+## Database Schema
+
+The application uses a `user_profiles` table with the following structure:
+
+- User authentication via Supabase Auth
+- Profile data stored in PostgreSQL
+- Avatar images in Supabase Storage
+- Row Level Security (RLS) policies for data protection
+
+## Development Scripts
+
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm test` - Run unit tests
+- `npm run watch` - Build with file watching
+
+## Configuration
+
+Environment variables are configured in:
+
+- `src/environments/environment.ts` (development)
+- `src/environments/environment.prod.ts` (production)
+
+Required Supabase configuration:
+
+- Project URL
+- Anonymous key
+- Database schema setup
 
 ## Security Features
 
-- **Row Level Security**: Database-level access control
-- **Authentication Guards**: Route protection
-- **File Upload Limits**: 1MB maximum for avatars
-- **Input Validation**: Client and server-side validation
-- **Secure Storage**: Supabase storage with proper policies
+- Row Level Security (RLS) policies
+- User authentication and authorization
+- Secure file upload with user-specific storage
+- Form validation and sanitization
+- Protected routes with auth guards
 
-## Responsive Design
+## Browser Support
 
-### Desktop (1200px+)
-
-- Two-column layout for registration
-- Full navigation menu
-- Large profile display
-- Modal-based editing
-
-### Tablet (768px - 1199px)
-
-- Single-column layout
-- Collapsible navigation
-- Optimized profile layout
-
-### Mobile (< 768px)
-
-- Single-column layout
-- Hamburger navigation
-- Touch-friendly interfaces
-- Optimized form inputs
-
-## Development
-
-### Available Scripts
-
-```bash
-# Development server
-npm start
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-
-# Lint code
-npm run lint
-```
-
-### Code Quality
-
-- **TypeScript**: Strict mode enabled
-- **ESLint**: Code linting and formatting
-- **Prettier**: Code formatting
-- **Angular Material**: Consistent UI components
-
-## Deployment
-
-### Production Build
-
-```bash
-npm run build
-```
-
-### Environment Configuration
-
-1. Update production environment variables
-2. Configure Supabase for production
-3. Set up proper CORS and security settings
-4. Deploy to your preferred hosting platform
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Supabase Connection**: Verify environment variables
-2. **Authentication Errors**: Check RLS policies
-3. **File Upload Issues**: Verify storage bucket configuration
-4. **CORS Errors**: Update allowed origins in Supabase
-
-### Debug Steps
-
-1. Check browser console for errors
-2. Verify Supabase dashboard logs
-3. Test API endpoints directly
-4. Validate environment configuration
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions:
-
-- Check the troubleshooting section
-- Review Supabase documentation
-- Open an issue in the repository
-
----
-
-**Built with ❤️ using Angular and Supabase**
+Modern browsers supporting ES2020+ features. Tested on Chrome, Firefox, Safari, and Edge.
