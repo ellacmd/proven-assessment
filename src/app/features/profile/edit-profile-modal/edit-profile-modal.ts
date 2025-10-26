@@ -45,6 +45,7 @@ export class EditProfileModal implements OnInit {
   editForm!: FormGroup;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  fileError = '';
   countries: CountryInfo[] = [];
   filteredCountries: CountryInfo[] = [];
   avatarRemoved = false;
@@ -133,12 +134,23 @@ export class EditProfileModal implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
-      if (file.size > 1024 * 1024) {
-        alert('File size must be less than 1MB');
+      this.fileError = '';
 
+      if (file.size > 1024 * 1024) {
+        this.fileError = 'File size must be less than 1MB';
         input.value = '';
         return;
       }
+
+      const allowedTypes = ['image/svg+xml', 'image/jpeg', 'image/jpg', 'image/png'];
+      const fileType = file.type.toLowerCase();
+
+      if (!allowedTypes.includes(fileType)) {
+        this.fileError = 'Only SVG, JPG, and PNG files are allowed';
+        input.value = '';
+        return;
+      }
+
       this.selectedFile = file;
       this.avatarRemoved = false;
       const reader = new FileReader();

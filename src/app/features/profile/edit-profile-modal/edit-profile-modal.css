@@ -285,3 +285,14 @@ h2[mat-dialog-title] {
         justify-content: center;
     }
 }
+
+.file-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    text-align: center;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+}

@@ -20,18 +20,24 @@
               <input
                 type="file"
                 id="avatar-upload"
-                accept="image/*"
+                accept=".svg,.jpg,.jpeg,.png,image/svg+xml,image/jpeg,image/png"
                 (change)="onFileSelected($event)"
                 style="display: none"
               />
               <label for="avatar-upload" class="primary-button">
                 <mat-icon>cloud_upload</mat-icon>
-                Upload Profile Picture
+                Upload Picture
               </label>
               <div class="upload-instructions">
                 <p>Upload a new avatar. Large image will be resized automatically.</p>
                 <p>Maximum upload size is <strong>1 MB</strong></p>
+                <p>Accepted formats: <strong>SVG, JPG, PNG</strong></p>
               </div>
+              @if (fileError()) {
+              <div class="file-error">
+                {{ fileError() }}
+              </div>
+              }
             </div>
           </div>
 

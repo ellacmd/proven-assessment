@@ -18,8 +18,8 @@ body {
 button {
     all: unset;
     cursor: pointer;
-    font-size: 16px;
 }
+
 
 button:disabled {
     cursor: not-allowed;
@@ -64,4 +64,26 @@ button:disabled {
 .mat-horizontal-stepper-header,
 .mat-vertical-stepper-header {
     pointer-events: none;
+}
+
+.mat-mdc-snack-bar-container {
+    background-color: #4caf50 !important;
+    color: white !important;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #4caf50 !important;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__label {
+    color: white !important;
+}
+
+.mat-mdc-snack-bar-container .mat-mdc-button {
+    color: white !important;
+}
+
+.success-toast {
+    background-color: #4caf50 !important;
+    color: white !important;
 }

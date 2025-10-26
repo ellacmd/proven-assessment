@@ -67,6 +67,7 @@ export class SignUp implements OnInit, OnDestroy {
   verificationForm!: FormGroup;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  fileError = signal('');
   timer = signal(120);
   countries: CountryInfo[] = [];
   filteredCountries: CountryInfo[] = [];
@@ -204,10 +205,23 @@ export class SignUp implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
+      this.fileError.set('');
+
       if (file.size > 1024 * 1024) {
-        alert('File size must be less than 1MB');
+        this.fileError.set('File size must be less than 1MB');
+        input.value = '';
         return;
       }
+
+      const allowedTypes = ['image/svg+xml', 'image/jpeg', 'image/jpg', 'image/png'];
+      const fileType = file.type.toLowerCase();
+
+      if (!allowedTypes.includes(fileType)) {
+        this.fileError.set('Only SVG, JPG, and PNG files are allowed');
+        input.value = '';
+        return;
+      }
+
       this.selectedFile = file;
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {

@@ -22,7 +22,7 @@
           class="user-avatar"
         />
         } @if (isOnProfileRoute()) {
-        <span class="user-name">{{ currentUser()?.username | truncate : 8 }}</span>
+        <span class="user-name">{{ currentUser()?.username | truncate : 15 }}</span>
         }
         <img src="/arrow-down.svg" alt="dropdown" class="dropdown-icon" />
       </button>

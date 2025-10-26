@@ -92,12 +92,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: 320px;
+    min-width: 300px;
     padding: 14px 24px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 
@@ -176,11 +177,6 @@
 
 
 
-@media (max-width: 1156px) {
-    .signin-content {
-        padding: 40px;
-    }
-}
 
 @media (max-width: 1038px) {
     .signin-background {
@@ -189,7 +185,7 @@
 
     .signin-content {
         flex-direction: column;
-        margin-top: -122px;
+        margin-top: -200px;
         padding: 0 1rem 2rem;
     }
 
@@ -213,9 +209,7 @@
 }
 
 @media (max-width: 480px) {
-    .signin-container {
-        padding: 0.5rem;
-    }
+
 
     .signin-card {
         padding: 1.5rem;

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EditProfileModal } from './edit-profile-modal/edit-profile-modal';
 import { AuthService } from '../../core/services/auth.service';
@@ -23,6 +24,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
   private timeoutId: number | null = null;
 
@@ -127,16 +129,20 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
+    let hasErrors = false;
+
     try {
       if (result.avatarRemoved) {
         const del = await this.userService.deleteAvatar(user.id);
         if (!del.success) {
           this.errorMessage.set(del.error || 'Failed to delete avatar');
+          hasErrors = true;
         }
       } else if (result.avatarFile) {
         const up = await this.userService.uploadAvatar(user.id, result.avatarFile);
         if (!up.success) {
           this.errorMessage.set(up.error || 'Failed to upload avatar');
+          hasErrors = true;
         } else {
           result.updatedProfile = { ...result.updatedProfile, avatar_url: up.url };
         }
@@ -150,10 +156,20 @@ export class ProfilePage implements OnInit, OnDestroy {
         const update = await this.userService.updateUserProfile(user.id, result.updatedProfile);
         if (!update.success) {
           this.errorMessage.set(update.error || 'Failed to update profile');
+          hasErrors = true;
         }
       }
 
       await this.authService.refreshUserProfile(user.id);
+
+      if (!hasErrors) {
+        this.snackBar.open('Profile updated successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          panelClass: ['success-toast'],
+        });
+      }
     } catch (error) {
       this.errorMessage.set('An error occurred while updating profile');
     } finally {

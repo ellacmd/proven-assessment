@@ -255,6 +255,17 @@
     border-radius: 6px;
 }
 
+.file-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    text-align: center;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+}
+
 
 
 
@@ -362,13 +373,11 @@
 }
 
 @media (max-width: 1038px) {
-    .signup-background {
-        height: 411px;
-    }
+
 
     .signup-content {
         flex-direction: column;
-        margin-top: -122px;
+        margin-top: -200px;
         padding: 0 1rem 2rem;
     }
 
@@ -409,7 +418,7 @@
 
 @media (max-width: 480px) {
     .signup-container {
-        padding: 1rem 0;
+        padding-bottom: 1rem;
     }
 
     .custom-stepper {
