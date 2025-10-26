@@ -80,11 +80,18 @@
               <div class="phone-row">
                 <mat-form-field appearance="outline" class="phone-code">
                   <mat-label>Code</mat-label>
-                  <mat-select
-                    [value]="registrationForm.get('phoneDialCode')?.value"
-                    (selectionChange)="onPhoneCodeSelected($event.value)"
+                  <input
+                    matInput
+                    formControlName="phoneDialCode"
+                    [matAutocomplete]="phoneCodeAuto"
+                    placeholder="+1"
+                  />
+                  <mat-autocomplete
+                    #phoneCodeAuto="matAutocomplete"
+                    (optionSelected)="onPhoneCodeSelected($event.option.value)"
+                    [displayWith]="displayDialCode"
                   >
-                    @for (c of countriesWithDial; track c.dialCode + c.name) {
+                    @for (c of filteredPhoneCountries; track c.dialCode + c.name) {
                     <mat-option [value]="c.dialCode">
                       <div class="country-option">
                         @if (c.flag) { <img [src]="c.flag" alt="flag" class="flag-icon" /> }
@@ -93,12 +100,17 @@
                       </div>
                     </mat-option>
                     }
-                  </mat-select>
+                  </mat-autocomplete>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="phone-number">
                   <mat-label>Phone</mat-label>
-                  <input matInput type="tel" formControlName="phone" placeholder="344-334-874" />
+                  <input
+                    matInput
+                    type="tel"
+                    formControlName="phone"
+                    placeholder="Enter phone number"
+                  />
                   @if (getFieldError('phone')) {
                   <mat-error>
                     {{ getFieldError('phone') }}
@@ -127,15 +139,10 @@
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Country </mat-label>
-                <input
-                  matInput
+                <mat-select
                   formControlName="country"
-                  [matAutocomplete]="countryAuto"
+                  (selectionChange)="onCountrySelected($event.value)"
                   placeholder="Select your country"
-                />
-                <mat-autocomplete
-                  #countryAuto="matAutocomplete"
-                  (optionSelected)="onCountrySelected($event.option.value)"
                 >
                   @for (country of filteredCountries; track country.name + country.cca2) {
                   <mat-option [value]="country.name">
@@ -143,12 +150,10 @@
                       @if (country.flag) {
                       <img [src]="country.flag" alt="flag" class="flag-icon" /> }
                       <span class="country-name">{{ country.name }}</span>
-                      @if (country.dialCode) {
-                      <span class="country-dial">{{ country.dialCode }}</span> }
                     </div>
                   </mat-option>
                   }
-                </mat-autocomplete>
+                </mat-select>
                 @if (getFieldError('country')) {
                 <mat-error>
                   {{ getFieldError('country') }}

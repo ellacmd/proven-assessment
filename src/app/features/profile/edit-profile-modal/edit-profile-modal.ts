@@ -76,15 +76,6 @@ export class EditProfileModal implements OnInit {
   }
 
   setupCountryFiltering() {
-    this.editForm.get('country')?.valueChanges.subscribe((value) => {
-      if (value && typeof value === 'string') {
-        const lower = value.toLowerCase();
-        this.filteredCountries = this.countries.filter((c) => c.name.toLowerCase().includes(lower));
-      } else {
-        this.filteredCountries = [...this.countries];
-      }
-    });
-
     this.filteredCountries = [...this.countries];
   }
 

@@ -61,7 +61,6 @@
 
     @if (!isAuthenticated() || !isOnProfileRoute()) {
     <a mat-list-item (click)="onSignInClick(); toggleDrawer()"> Sign In </a>
-    <a mat-list-item (click)="onRegistrationClick(); toggleDrawer()"> Registration </a>
     } @else {
     <div class="mobile-user-profile">
       <div class="mobile-user-info">

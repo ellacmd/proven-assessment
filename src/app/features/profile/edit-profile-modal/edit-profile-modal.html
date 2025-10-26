@@ -81,23 +81,16 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Country</mat-label>
-          <input
-            matInput
-            formControlName="country"
-            [matAutocomplete]="countryAuto"
-            placeholder="Select your country"
-          />
-          <mat-autocomplete #countryAuto="matAutocomplete">
+          <mat-select formControlName="country" placeholder="Select your country">
             @for (country of filteredCountries; track country.name + country.cca2) {
             <mat-option [value]="country.name">
               <div class="country-option">
                 @if (country.flag) { <img [src]="country.flag" alt="flag" class="flag-icon" /> }
                 <span class="country-name">{{ country.name }}</span>
-                @if (country.dialCode) { <span class="country-dial">{{ country.dialCode }}</span> }
               </div>
             </mat-option>
             }
-          </mat-autocomplete>
+          </mat-select>
           @if (getFieldError('country')) {
           <mat-error>{{ getFieldError('country') }}</mat-error>
           }

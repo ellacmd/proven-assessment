@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   ViewChildren,
   QueryList,
   ElementRef,
@@ -28,6 +29,7 @@ import { UserService } from '../../core/services/user.service';
 import { birthDateValidator, websiteUrlValidator } from '../../core/utils/validators';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MatStepper } from '@angular/material/stepper';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sign-up',
@@ -50,7 +52,7 @@ import { MatStepper } from '@angular/material/stepper';
   templateUrl: './sign-up.html',
   styleUrl: './sign-up.css',
 })
-export class SignUp implements OnInit {
+export class SignUp implements OnInit, OnDestroy {
   @ViewChildren('digitInput') digitInputs!: QueryList<ElementRef>;
 
   private fb = inject(FormBuilder);
@@ -59,6 +61,7 @@ export class SignUp implements OnInit {
   private userService = inject(UserService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
   registrationForm!: FormGroup;
   verificationForm!: FormGroup;
@@ -67,12 +70,14 @@ export class SignUp implements OnInit {
   timer = signal(120);
   countries: CountryInfo[] = [];
   filteredCountries: CountryInfo[] = [];
+  filteredPhoneCountries: CountryInfo[] = [];
   selectedCountry: CountryInfo | null = null;
   selectedPhoneCountry: CountryInfo | null = null;
   isLoading = signal(false);
   errorMessage = signal('');
   currentStep = signal(0);
   today: Date = new Date();
+  private timerInterval: number | null = null;
 
   get maxDate(): Date {
     return new Date();
@@ -82,6 +87,15 @@ export class SignUp implements OnInit {
     this.initializeForms();
     this.setupCountryFiltering();
     this.loadCountries();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
   }
 
   initializeForms() {
@@ -107,21 +121,27 @@ export class SignUp implements OnInit {
   }
 
   setupCountryFiltering() {
-    this.registrationForm.get('country')?.valueChanges.subscribe((value) => {
-      if (value && typeof value === 'string') {
-        const lower = value.toLowerCase();
-        this.filteredCountries = this.countries.filter((c) => c.name.toLowerCase().includes(lower));
-      } else {
-        this.filteredCountries = [...this.countries];
-      }
-    });
-
     this.filteredCountries = [...this.countries];
+
+    this.registrationForm
+      .get('phoneDialCode')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        if (value && typeof value === 'string') {
+          const lower = value.toLowerCase();
+          this.filteredPhoneCountries = this.countriesWithDial.filter(
+            (c) => c.name.toLowerCase().includes(lower) || c.dialCode.includes(value)
+          );
+        } else {
+          this.filteredPhoneCountries = [...this.countriesWithDial];
+        }
+      });
   }
 
   loadCountries() {
     this.http
       .get<CountryApiResponse[]>('https://restcountries.com/v3.1/all?fields=name,flags,idd,cca2')
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           const mapped: CountryInfo[] = res
@@ -143,6 +163,7 @@ export class SignUp implements OnInit {
           mapped.sort((a, b) => a.name.localeCompare(b.name));
           this.countries = mapped;
           this.filteredCountries = [...this.countries];
+          this.filteredPhoneCountries = [...this.countriesWithDial];
 
           const defaultCountry = this.countries.find((c) => c.name === 'United States');
           if (defaultCountry) {
@@ -155,6 +176,7 @@ export class SignUp implements OnInit {
         error: () => {
           this.countries = [];
           this.filteredCountries = [];
+          this.filteredPhoneCountries = [];
         },
       });
   }
@@ -168,6 +190,10 @@ export class SignUp implements OnInit {
     const found = this.countries.find((c) => c.dialCode === dialCode) || null;
     this.selectedPhoneCountry = found;
     this.registrationForm.get('phoneDialCode')?.setValue(dialCode || '');
+  }
+
+  displayDialCode(dialCode: string): string {
+    return dialCode || '';
   }
 
   get countriesWithDial(): CountryInfo[] {
@@ -261,12 +287,18 @@ export class SignUp implements OnInit {
 
   startTimer(seconds: number) {
     this.timer.set(seconds);
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
 
-    const interval = setInterval(() => {
+    this.timerInterval = setInterval(() => {
       this.timer.update((current) => {
         const newValue = current - 1;
         if (newValue <= 0) {
-          clearInterval(interval);
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+          }
         }
         return newValue;
       });

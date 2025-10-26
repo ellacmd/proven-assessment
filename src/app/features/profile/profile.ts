@@ -23,6 +23,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
+  private timeoutId: number | null = null;
 
   isLoading = signal(false);
   errorMessage = signal('');
@@ -41,7 +42,7 @@ export class ProfilePage implements OnInit, OnDestroy {
           replaceUrl: true,
         });
 
-        setTimeout(() => {
+        this.timeoutId = setTimeout(() => {
           this.onEditProfile();
         }, 100);
       }
@@ -51,6 +52,10 @@ export class ProfilePage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
   }
 
   async loadUserProfile() {

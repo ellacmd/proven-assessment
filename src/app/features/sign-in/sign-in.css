@@ -92,10 +92,8 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
-    max-width: 320px;
+    min-width: 320px;
     padding: 14px 24px;
-
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
@@ -119,8 +117,7 @@
 }
 
 .signin-btn {
-    margin: 1rem auto 0 auto;
-    width: 88%;
+    margin: 0 auto;
 }
 
 .signin-btn mat-icon {
@@ -198,7 +195,7 @@
 
     .signin-card {
         padding: 2rem;
-        max-width: 100%;
+        margin: 0 auto;
     }
 
     .signin-header h1 {

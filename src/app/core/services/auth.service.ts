@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 import { User, SignUpData, AuthUserMetadata } from '../../shared/models/user.model';
@@ -6,8 +6,9 @@ import { User, SignUpData, AuthUserMetadata } from '../../shared/models/user.mod
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   private readonly STORAGE_KEY = 'auth_user';
+  private authStateChangeSubscription: any = null;
 
   private userSignal = signal<User | null>(this.getUserFromStorage());
 
@@ -34,13 +35,15 @@ export class AuthService {
       this.clearUser();
     }
 
-    this.supabaseService.client.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        await this.loadUserProfile(session.user.id);
-      } else if (event === 'SIGNED_OUT') {
-        this.clearUser();
+    this.authStateChangeSubscription = this.supabaseService.client.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          await this.loadUserProfile(session.user.id);
+        } else if (event === 'SIGNED_OUT') {
+          this.clearUser();
+        }
       }
-    });
+    );
   }
 
   private getUserFromStorage(): User | null {
@@ -261,5 +264,12 @@ export class AuthService {
   private clearUser(): void {
     this.userSignal.set(null);
     this.saveUserToStorage(null);
+  }
+
+  ngOnDestroy() {
+    if (this.authStateChangeSubscription) {
+      this.authStateChangeSubscription.data?.unsubscribe?.();
+      this.authStateChangeSubscription = null;
+    }
   }
 }

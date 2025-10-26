@@ -86,10 +86,6 @@ export class Navbar implements OnInit, OnDestroy {
     this.router.navigate(['/signin']);
   }
 
-  onRegistrationClick() {
-    this.router.navigate(['/']);
-  }
-
   getInitials(): string {
     const user = this.currentUser();
     if (!user?.username) return 'U';
