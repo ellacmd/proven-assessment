@@ -9,10 +9,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { EditableUserProfile } from '../../shared/models/user.model';
 import { Subject, takeUntil } from 'rxjs';
+import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule, TruncatePipe],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { Subject, takeUntil, filter } from 'rxjs';
+import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-navbar',
@@ -18,6 +19,7 @@ import { Subject, takeUntil, filter } from 'rxjs';
     MatSidenavModule,
     MatListModule,
     MatMenuModule,
+    TruncatePipe,
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',

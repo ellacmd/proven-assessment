@@ -34,7 +34,7 @@
         </div>
         }
       </div>
-      <h2 class="profile-name">{{ currentUser()?.username }}</h2>
+      <h2 class="profile-name">{{ currentUser()?.username | truncate : 12 }}</h2>
       <button class="edit-profile-btn" (click)="onEditProfile()">
         <img src="/edit.svg" alt="Edit" class="icon" />
         Edit Profile
@@ -57,7 +57,9 @@
         </div>
         }
       </div>
-      <h2 class="profile-name profile-name-mobile">{{ currentUser()?.username }}</h2>
+      <h2 class="profile-name profile-name-mobile">
+        {{ currentUser()?.username | truncate : 12 }}
+      </h2>
       <h3 class="profile-info-header">Profile Info</h3>
       <div class="profile-info-content">
         <div class="info-grid">
@@ -67,7 +69,7 @@
             </div>
             <div class="info-details">
               <span class="info-label">Username</span>
-              <span class="info-value">{{ currentUser()?.username }}</span>
+              <span class="info-value">{{ currentUser()?.username | truncate : 25 }}</span>
             </div>
           </div>
 

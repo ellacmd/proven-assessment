@@ -2,13 +2,14 @@ import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 import { User, SignUpData, AuthUserMetadata } from '../../shared/models/user.model';
+import type { Subscription } from '@supabase/auth-js';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService implements OnDestroy {
   private readonly STORAGE_KEY = 'auth_user';
-  private authStateChangeSubscription: any = null;
+  private authStateChangeSubscription: { data: { subscription: Subscription } } | null = null;
 
   private userSignal = signal<User | null>(this.getUserFromStorage());
 
@@ -183,7 +184,7 @@ export class AuthService implements OnDestroy {
     };
   }
 
-  private mapProfileToUser(profile: any, userId: string): User {
+  private mapProfileToUser(profile: User, userId: string): User {
     return {
       id: userId,
       email: profile.email,
@@ -268,7 +269,7 @@ export class AuthService implements OnDestroy {
 
   ngOnDestroy() {
     if (this.authStateChangeSubscription) {
-      this.authStateChangeSubscription.data?.unsubscribe?.();
+      this.authStateChangeSubscription.data.subscription.unsubscribe();
       this.authStateChangeSubscription = null;
     }
   }
