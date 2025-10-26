@@ -2,6 +2,8 @@
 
 A modern Angular application for user registration, authentication, and profile management built with Supabase backend integration.
 
+**Assessment Link**: [https://proven-assessment.vercel.app/](https://proven-assessment.vercel.app/)
+
 ## Features
 
 - **User Registration**: Multi-step registration form with country selection, phone validation, and avatar upload
